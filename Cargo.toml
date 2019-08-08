@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Oscar <osmithsi@sfu.ca>"]
 edition = "2018"
 
+license = "MIT"
+description = "A rusty implementation of the weird-ass special number type used in yolol."
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]

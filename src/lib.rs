@@ -1,7 +1,7 @@
 // Required for doing saturating_neg and saturating_abs for YololNumber's
-#![feature(saturating_neg)]
+// #![feature(saturating_neg)]
 
-// For checking int parse errors in the tokenizing stage
+// For checking int parse errors in YololNumber::from_str
 #![feature(int_error_matching)]
 
 // So we don't have _horrible_ trait bounds
@@ -13,4 +13,7 @@ mod tests;
 mod yolol_ops;
 mod consts;
 mod number;
+
+pub use number::YololNumber;
+pub use yolol_ops::YololOps;
 
