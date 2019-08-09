@@ -1,3 +1,5 @@
+use std::cmp;
+
 use std::ops::{
     Add,
     Sub,
@@ -8,27 +10,19 @@ use std::ops::{
     Not
 };
 
-use std::cmp;
-
 use num_traits::{
-    Bounded,
     AsPrimitive,
 };
 
 use super::{
     YololNumber,
-
-    // CONVERSION_CONST,
-    // InnerType,
-    // InnerBounds
-};
-
-use crate::consts::{
-    InnerBounds,
-    NumBounds
 };
 
 use crate::yolol_ops::YololOps;
+
+use crate::consts::{
+    InnerBounds,
+};
 
 // These ops internally use f64, so we need special trait bounds for them
 impl<T: YololOps + AsPrimitive<f64>> YololNumber<T>
@@ -67,64 +61,49 @@ where f64: AsPrimitive<T>
             T::from(pow).expect("Unable to convert output of pow into inner type... Bad things happened")
         };
 
-        let inner = Self::make_inner(pow);
-        YololNumber(inner)
+        YololNumber::from_value(pow)
     }
 
     pub fn sqrt(self) -> Self
     {
         let output = self.float_value().sqrt();
-        let inner = Self::make_inner(output.as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(output.as_())
     }
 
     pub fn sin(self) -> Self
     {
         let rads = self.float_value().to_radians();
-        let inner = Self::make_inner(rads.sin().as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(rads.sin().as_())
     }
 
     pub fn cos(self) -> Self
     {
         let rads = self.float_value().to_radians();
-        let inner = Self::make_inner(rads.cos().as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(rads.cos().as_())
     }
 
     pub fn tan(self) -> Self
     {
         let rads = self.float_value().to_radians();
-        let inner = Self::make_inner(rads.tan().as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(rads.tan().as_())
     }
 
     pub fn arcsin(self) -> Self
     {
         let rads = self.float_value().asin();
-        let inner = Self::make_inner(rads.to_degrees().as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(rads.to_degrees().as_())
     }
 
     pub fn arccos(self) -> Self
     {
         let rads = self.float_value().acos();
-
-        let inner = Self::make_inner(rads.to_degrees().as_());
-        YololNumber(inner)
+        YololNumber::from_value(rads.to_degrees().as_())
     }
 
     pub fn arctan(self) -> Self
     {
         let rads = self.float_value().atan();
-        let inner = Self::make_inner(rads.to_degrees().as_());
-
-        YololNumber(inner)
+        YololNumber::from_value(rads.to_degrees().as_())
     }
 }
 
@@ -133,8 +112,7 @@ impl<T: YololOps> YololNumber<T>
     pub fn floor(self) -> Self
     {
         // By dividing by the conversion const, we wipe out all the decimal places
-        let inner = Self::make_inner(self.0 / Self::conversion_val());
-        YololNumber(inner)
+        YololNumber::from_value(self.0 / Self::conversion_val())
     }
 
     pub fn ceiling(self) -> Self
@@ -145,21 +123,63 @@ impl<T: YololOps> YololNumber<T>
         let adjustment = Self::conversion_val() - first_decimal;
 
         // Then by adding that adjustment, we bring us to the next whole value
-        YololNumber(self.0 + adjustment)
+        YololNumber(self.0 + adjustment).bound()
     }
 
     pub fn clamp(self, min: Self, max: Self) -> Self
     {
-        num_traits::clamp(self, min, max)
+        num_traits::clamp(self, min, max).bound()
+    }
+}
+
+impl<T: YololOps> num_traits::Signed for YololNumber<T>
+{
+    fn abs(&self) -> Self
+    {
+        YololNumber(self.0.abs()).bound()
     }
 
-    pub fn abs(self) -> Self
+    fn abs_sub(&self, other: &Self) -> Self
     {
-        YololNumber(self.0.abs())
+        if self <= other
+        {
+            Self::zero()
+        }
+        else
+        {
+            (self - other).abs()
+        }
+    }
+
+    fn signum(&self) -> Self
+    {
+        if self.is_positive()
+        {
+            Self::one()
+        }
+        else if self.is_negative()
+        {
+            -Self::one()
+        }
+        else // self == 0
+        {
+            Self::zero()
+        }
+    }
+
+    fn is_positive(&self) -> bool
+    {
+        self > &Self::zero()
+    }
+
+    fn is_negative(&self) -> bool
+    {
+        self < &Self::zero()
     }
 }
 
 impl<T: YololOps> cmp::Eq for YololNumber<T> {}
+
 impl<T: YololOps> cmp::PartialEq for YololNumber<T>
 {
     fn eq(&self, other: &Self) -> bool
@@ -184,70 +204,109 @@ impl<T: YololOps> cmp::PartialOrd for YololNumber<T>
     }
 }
 
+impl<T: YololOps> num_traits::CheckedAdd for YololNumber<T>
+{
+    fn checked_add(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_add(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedSub for YololNumber<T>
+{
+    fn checked_sub(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_sub(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedMul for YololNumber<T>
+{
+    fn checked_mul(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_mul(&other.0)?
+            .checked_div(&Self::conversion_val())
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedDiv for YololNumber<T>
+{
+    fn checked_div(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_mul(&Self::conversion_val())?
+            .checked_div(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedRem for YololNumber<T>
+{
+    fn checked_rem(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_rem(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
 impl<T: YololOps> Add for YololNumber<T>
 {
     type Output =  Self;
     fn add(self, other: Self) -> Self
     {
-        YololNumber(self.0 + other.0)
+        self.yolol_add(other)
     }
 }
 impl_for_refs!( impl<T: YololOps> Add for YololNumber<T> { fn add() -> Self } );
-
 
 impl<T: YololOps> Sub for YololNumber<T>
 {
     type Output = Self;
     fn sub(self, other: Self) -> Self
     {
-        YololNumber(self.0 - other.0)
+        self.yolol_sub(other)
     }
 }
 impl_for_refs!( impl<T: YololOps> Sub for YololNumber<T> { fn sub() -> Self } );
 
-
-#[allow(clippy::suspicious_arithmetic_impl)]
 impl<T: YololOps> Mul for YololNumber<T>
 {
     type Output = Self;
     fn mul(self, other: Self) -> Self
     {
-        let output = (self.0 * other.0) / Self::conversion_val();
-        YololNumber(output)
+        self.yolol_mul(other)
     }
 }
 impl_for_refs!( impl<T: YololOps> Mul for YololNumber<T> { fn mul() -> Self } );
 
-#[allow(clippy::suspicious_arithmetic_impl)]
 impl<T: YololOps> Div for YololNumber<T>
 {
     type Output = Self;
     fn div(self, other: Self) -> Self
     {
-        let output = (self.0 * Self::conversion_val()) / other.0;
-        YololNumber(output)
+        self.yolol_div(other).unwrap()
     }
 }
 impl_for_refs!( impl<T: YololOps> Div for YololNumber<T> { fn div() -> Self } );
-
 
 impl<T: YololOps> Rem for YololNumber<T>
 {
     type Output = Self;
     fn rem(self, other: Self) -> Self
     {
-        YololNumber(self.0 % other.0)
+        self.yolol_mod(other)
     }
 }
 impl_for_refs!( impl<T: YololOps> Rem for YololNumber<T> { fn rem() -> Self } );
-
 
 impl<T: YololOps> Neg for YololNumber<T>
 {
     type Output = Self;
     fn neg(self) -> Self
     {
-        YololNumber(-self.0)
+        YololNumber(-self.0).bound()
     }
 }
 
@@ -258,7 +317,7 @@ impl<T: YololOps> Not for YololNumber<T>
     {
         if self.0 == T::zero()
         {
-            YololNumber(Self::make_inner(T::one()))
+            YololNumber::from_value(T::one())
         }
         else
         {

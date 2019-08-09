@@ -1,6 +1,6 @@
 // use num_traits::CheckedDiv;
 
-use crate::consts::{InnerBounds, NumBounds};
+use crate::consts::InnerBounds;
 
 pub trait YololOps: InnerBounds
 {

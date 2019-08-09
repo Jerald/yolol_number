@@ -1,5 +1,4 @@
 use std::str::FromStr;
-use std::convert::TryInto;
 
 use regex::Regex;
 
@@ -9,7 +8,6 @@ use super::{
 
 use crate::consts::{
     InnerBounds,
-    NumBounds
 };
 
 use crate::yolol_ops::YololOps;
@@ -25,15 +23,6 @@ impl<T: YololOps> From<bool> for YololNumber<T>
         }
     }
 }
-
-// impl<T: YololOps> From<T> for YololNumber<T>
-// {
-//     fn from(input: T) -> Self
-//     {
-//         YololNumber(input)
-//     }
-// }
-
 
 impl<T: YololOps> FromStr for YololNumber<T>
 {

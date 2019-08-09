@@ -1,7 +1,6 @@
 use num_traits::{
     self,
     Bounded,
-    AsPrimitive,
     cast::{
         NumCast,
     },
@@ -17,14 +16,6 @@ mod ops;
 mod conversions;
 mod serde_impl;
 
-// impl<T> AsPrimitive<T> for T
-// {
-//     fn as_(self) -> T
-//     {
-//         self
-//     }
-// }
-
 #[derive(Clone, Copy)]
 pub struct YololNumber<T: YololOps>(T);
 
@@ -34,13 +25,13 @@ impl<T: YololOps> YololNumber<T>
     pub fn from_value(input: T) -> Self
     {
         let inner = Self::make_inner(input);
-        YololNumber(inner)
+        YololNumber(inner).bound()
     }
 
     /// Creates a YololNumber with the input directly used as the raw inner. 
     pub fn from_inner(input: T) -> Self
     {
-        YololNumber(input)
+        YololNumber(input).bound()
     }
 }
 
@@ -56,7 +47,7 @@ impl<T: YololOps> YololNumber<T>
             num_traits::clamp(val, T::zero(), Self::conversion_val() - T::one())
         };
 
-        Some(YololNumber(main + decimal))
+        Some(YololNumber(main + decimal).bound())
     }
 
     /// Returns the value used to multiplicatively shift between the raw inner and actual value
@@ -184,99 +175,5 @@ impl<T: YololOps> num_traits::Bounded for YololNumber<T>
     {
         let max = T::from(<i64 as num_traits::Bounded>::max_value()).unwrap_or(T::max_value());
         YololNumber(max)
-    }
-}
-
-// Move this out of here since it's a safe interface
-impl<T: YololOps> num_traits::Signed for YololNumber<T>
-{
-    fn abs(&self) -> Self
-    {
-        YololNumber(self.0.abs()).bound()
-    }
-
-    fn abs_sub(&self, other: &Self) -> Self
-    {
-        if self <= other
-        {
-            Self::zero()
-        }
-        else
-        {
-            (self - other).abs()
-        }
-    }
-
-    fn signum(&self) -> Self
-    {
-        if self.is_positive()
-        {
-            Self::one()
-        }
-        else if self.is_negative()
-        {
-            -Self::one()
-        }
-        else // self == 0
-        {
-            Self::zero()
-        }
-    }
-
-    fn is_positive(&self) -> bool
-    {
-        self > &Self::zero()
-    }
-
-    fn is_negative(&self) -> bool
-    {
-        self < &Self::zero()
-    }
-}
-
-impl<T: YololOps> num_traits::CheckedAdd for YololNumber<T>
-{
-    fn checked_add(&self, other: &Self) -> Option<Self>
-    {
-        self.0.checked_add(&other.0)
-            .map(|n| YololNumber(n))
-    }
-}
-
-impl<T: YololOps> num_traits::CheckedSub for YololNumber<T>
-{
-    fn checked_sub(&self, other: &Self) -> Option<Self>
-    {
-        self.0.checked_sub(&other.0)
-            .map(|n| YololNumber(n))
-    }
-}
-
-impl<T: YololOps> num_traits::CheckedMul for YololNumber<T>
-{
-    fn checked_mul(&self, other: &Self) -> Option<Self>
-    {
-        self.0.checked_mul(&other.0)?
-            .checked_div(&Self::conversion_val())
-            .map(|n| YololNumber(n))
-    }
-}
-
-impl<T: YololOps> num_traits::CheckedDiv for YololNumber<T>
-{
-    fn checked_div(&self, other: &Self) -> Option<Self>
-    {
-        self.0.checked_mul(&Self::conversion_val())?
-            .checked_div(&other.0)
-            .map(|n| YololNumber(n))
-    }
-}
-
-impl<T: YololOps> num_traits::CheckedRem for YololNumber<T>
-{
-    fn checked_rem(&self, other: &Self) -> Option<Self>
-    {
-        self.0.checked_rem(&other.0)
-            .map(|n| YololNumber(n))
     }
 }

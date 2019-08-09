@@ -2,7 +2,6 @@
 
 use num_traits::{
     NumCast,
-    CheckedMul
 };
 
 use crate::{
