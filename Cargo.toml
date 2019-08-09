@@ -1,9 +1,10 @@
 [package]
 name = "yolol_number"
-version = "0.1.0"
+version = "0.1.2"
 authors = ["Oscar <osmithsi@sfu.ca>"]
 edition = "2018"
 
+repository = "https://github.com/Jerald/yolol_number"
 license = "MIT"
 description = "A rusty implementation of the weird-ass special number type used in yolol."
 
@@ -12,6 +13,8 @@ description = "A rusty implementation of the weird-ass special number type used 
 [dependencies]
 serde = { version = "1.0.94", features = ["derive"] }
 num-traits = "0.2.8"
+
+regex = "1.2.1"
 
 [dev-dependencies]
 serde_json = "1.0.40"

@@ -1,6 +1,8 @@
 use std::str::FromStr;
 use std::convert::TryInto;
 
+use regex::Regex;
+
 use super::{
     YololNumber,
 };
@@ -12,39 +14,26 @@ use crate::consts::{
 
 use crate::yolol_ops::YololOps;
 
-// impl From<InnerType> for YololNumber
+impl<T: YololOps> From<bool> for YololNumber<T>
+{
+    fn from(input: bool) -> Self
+    {
+        match input
+        {
+            true => Self::one(),
+            false => Self::zero()
+        }
+    }
+}
+
+// impl<T: YololOps> From<T> for YololNumber<T>
 // {
-//     fn from(input: InnerType) -> YololNumber
+//     fn from(input: T) -> Self
 //     {
-//         let num = YololNumber::to_inner(input);
-//         YololNumber(num)
+//         YololNumber(input)
 //     }
 // }
 
-// impl From<&InnerType> for YololNumber
-// {
-//     fn from(input: &InnerType) -> YololNumber
-//     {
-//         let num = YololNumber::to_inner(*input);
-//         YololNumber(num)
-//     }
-// }
-
-// impl From<YololNumber> for InnerType
-// {
-//     fn from(input: YololNumber) -> InnerType
-//     {
-//         YololNumber::from_inner(input.0)
-//     }
-// }
-
-// impl From<&YololNumber> for InnerType
-// {
-//     fn from(input: &YololNumber) -> InnerType
-//     {
-//         YololNumber::from_inner(input.0)
-//     }
-// }
 
 impl<T: YololOps> FromStr for YololNumber<T>
 {
@@ -52,72 +41,56 @@ impl<T: YololOps> FromStr for YololNumber<T>
 
     fn from_str(string: &str) -> Result<Self, Self::Err>
     {
-        let (left_string, right_string) = if string.contains('.')
-        {
-            let split: Vec<&str> = string.split('.').collect();
-            
-            if split.len() != 2
-            {
-                return Err(format!("[YololNumber::from_str] Input string had {} decimal points!", split.len()));
-            }
+        let matcher = Regex::new(r"^(?P<sign>+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0+)(?P<dec_num>[1-9]+))?$").expect("Unable to compile YololNumber::from_str regex!");
 
-            (split[0], split[1])
-        }
-        else
+        let captures = match matcher.captures(string)
         {
-            (string, "")
+            Some(caps) => caps,
+            None => return Err("[YololNumber::from_str] Input string didn't pass regex verification!".to_owned())
         };
 
-        // Ensure the left string is all ascii digits
-        if !left_string.chars().all(|c| c.is_ascii_digit())
+        let sign = captures.name("sign");
+        let main = captures.name("main");
+
+        // Number of leading zeroes in the decimals
+        let dec_zeros = captures.name("dec_zero").map_or(0, |m| m.as_str().len());
+        let dec_num = captures.name("dec_num");
+
+        let sign_num = match sign
         {
-            return Err("[YololNumber::from_str] Chars to left of decimal point aren't all numbers!".to_owned())
-        }
+            None => T::one(),
 
-        // Ensure the right string is either empty or all ascii digits
-        if !right_string.is_empty() && !right_string.chars().all(|c| c.is_ascii_digit())
-        {
-            return Err("[YololNumber::from_str] Chars to right of decimal point aren't all numbers!".to_owned())
-        }
+            Some(sign) if sign.as_str() == "+" => T::one(),
+            Some(sign) if sign.as_str() == "-" => -T::one(),
 
-        let parse_error_handler = |error: std::num::ParseIntError| {
-            use std::num::IntErrorKind;
-            match error.kind()
-            {
-                IntErrorKind::Empty |
-                IntErrorKind::Zero => 0,
-
-                // TODO: replace with min and max from YololNumber implementation of Bounded
-                IntErrorKind::Overflow => std::i64::MAX,
-                IntErrorKind::Underflow => std::i64::MIN,
-
-                IntErrorKind::InvalidDigit => panic!("[YololNumber::from_str] String to i64 parse error: somehow encountered a letter in the characters collected for a yolol number!"),
-                _ => panic!("[YololNumber::from_str] Unknown String to i64 parse error when converting yolol number!")
-            }
+            _ => return Err("[YololNumber::from_str] Somehow the sign matched by the regex isn't '+' or '-'...".to_owned())
         };
 
-        let left_num: i64 = left_string.parse::<i64>().unwrap_or_else(parse_error_handler);
-
-        let right_num: i64 = match right_string.len()
+        let main_num = match main
         {
-            0 => 0,
+            Some(num) => num.as_str().parse::<T>()
+                .or_else(|_| Err("[YololNumber::from_str] Unknown error caused a failure is parsing the main digits!".to_owned()))?,
 
-            len @ 1..=3 => {
-                let shift: i64 = (10i64).pow(4 - (len as u32));
-                let num = right_string[0..len].parse::<i64>().unwrap_or_else(parse_error_handler);
-                num * shift
+            None => return Err("[YololNumber::from_str] Unknown error resulted in a verified input but no main digits!".to_owned()),
+        };
+
+        let decimal_num = match dec_num
+        {
+            Some(_) if dec_zeros >= 4 => T::zero(),
+
+            Some(num) => {
+                let slice_len = usize::min(num.as_str().len(), 4 - dec_zeros);
+
+                assert!(slice_len > 0 && slice_len < 4, "[YololNumber::from_str] Logic error! slice_len should be logically clamped in a range but it's not!");
+
+                num.as_str()[0..slice_len].parse::<T>()
+                    .or_else(|_| Err("[YololNumber::from_str] Unknown error caused a failure is parsing the main digits!".to_owned()))?
             },
 
-            _ => {
-                match right_string[0..4].parse::<i64>()
-                {
-                    Ok(num) => num,
-                    Err(_) => return Err("[YololNumber::from_str] Failure to parse 4 decimals into number!".to_owned())
-                }
-            }
+            None => T::zero(),
         };
 
-        YololNumber::from_split(left_num, right_num)
+        YololNumber::from_split(main_num * sign_num, decimal_num)
             .ok_or_else(|| "[YololNumber::from_str] Failure to create yolol number from split inputs!".to_owned())
     }
 }
@@ -174,3 +147,4 @@ impl<T: YololOps> std::fmt::Debug for YololNumber<T>
         write!(f, "YololNumber({})", self)
     }
 }
+

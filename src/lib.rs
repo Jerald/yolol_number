@@ -10,9 +10,12 @@
 #[cfg(test)]
 mod tests;
 
+#[macro_use]
+mod utils;
+
+mod number;
 mod yolol_ops;
 mod consts;
-mod number;
 
 pub use number::YololNumber;
 pub use yolol_ops::YololOps;

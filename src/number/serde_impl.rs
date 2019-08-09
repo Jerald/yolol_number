@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use serde::{Serialize, Deserialize, Serializer, Deserializer, de::Visitor};
 
 use super::YololNumber;
@@ -13,7 +15,6 @@ impl<T: YololOps> Serialize for YololNumber<T>
     }
 }
 
-use std::marker::PhantomData;
 struct YololNumberVisitor<T: YololOps>(PhantomData<T>);
 
 impl<'de, T: YololOps> Visitor<'de> for YololNumberVisitor<T>

@@ -1,22 +1,13 @@
-use std::convert::{TryFrom, TryInto};
-
-use num_traits;
 use num_traits::{
-    Num,
+    self,
+    Bounded,
+    AsPrimitive,
     cast::{
         NumCast,
-        AsPrimitive
     },
 };
 
-// use num_traits::{
-//     real::Real as num_traits::Real
-// };
-
 use crate::consts::{
-    // CONVERSION_CONST,
-    // InnerType,
-    InnerBounds,
     NumBounds
 };
 
@@ -26,59 +17,86 @@ mod ops;
 mod conversions;
 mod serde_impl;
 
-// Traits to implement on YololNumber:
-// Bounded - provides min and max bounds
-// FromPrimitive / ToPrimitive - provides nice conversion with the primitive types
-// Signed - abs stuff
+// impl<T> AsPrimitive<T> for T
+// {
+//     fn as_(self) -> T
+//     {
+//         self
+//     }
+// }
 
 #[derive(Clone, Copy)]
-pub struct YololNumber<T: YololOps>(pub T);
+pub struct YololNumber<T: YololOps>(T);
 
 impl<T: YololOps> YololNumber<T>
 {
-    // const CONVERSION_CONST: T = T::from(10000).unwrap();
-
-    fn conversion_val() -> T
+    /// Creates a YololNumber with the same value as the input. This will shift the input as necessary.
+    pub fn from_value(input: T) -> Self
     {
-        T::from(10000).unwrap()
+        let inner = Self::make_inner(input);
+        YololNumber(inner)
     }
 
+    /// Creates a YololNumber with the input directly used as the raw inner. 
+    pub fn from_inner(input: T) -> Self
+    {
+        YololNumber(input)
+    }
+}
+
+impl<T: YololOps> YololNumber<T>
+{
     pub fn from_split(main: impl NumBounds, decimal: impl NumBounds) -> Option<Self>
     {
-        let main = Self::to_inner(T::from(main)?);
-        let decimal = T::from(decimal)?;
+        let main = Self::make_inner(T::from(main)?);
+
+        // Clamps the decimal to between 0 and 9999, to ensure we don't get weirdness
+        let decimal = {
+            let val = T::from(decimal)?;
+            num_traits::clamp(val, T::zero(), Self::conversion_val() - T::one())
+        };
 
         Some(YololNumber(main + decimal))
     }
 
-    fn to_inner(num: T) -> T
+    /// Returns the value used to multiplicatively shift between the raw inner and actual value
+    fn conversion_val() -> T
+    {
+        T::from(10000).expect("Using YololNumber with a backing type that can't express 10,000!")
+    }
+
+    /// Converts a given value to the raw inner that expresses it
+    fn make_inner(num: T) -> T
     {
         num * Self::conversion_val()
     }
 
-    pub fn is_negative(self) -> bool
+    /// Clamps the raw inner to the bounds of its expressible values
+    fn bound(self) -> Self
     {
-        self.0.is_negative()
+        num_traits::clamp(self, Self::min_value(), Self::max_value())
     }
 
-    fn generic_to_inner(input: impl NumBounds) -> Option<Self>
+    /// Treats the inputs as if it were a raw inner value.
+    /// This means it should be larger by a factor of 10_000 than the value you want.
+    fn try_to_inner(input: impl NumBounds) -> Option<Self>
     {
         T::from(input)
             .map(|n| YololNumber(n))
     }
 
-    fn generic_from_inner<L>(&self) -> Option<L>
-    where L: num_traits::NumCast
+    /// Directly outputs the raw inner value, does not scale it.
+    fn try_from_inner<L: NumCast>(&self) -> Option<L>
     {
         L::from(self.0)
     }
 }
 
-impl<T: InnerBounds> num_traits::Zero for YololNumber<T>
+impl<T: YololOps> num_traits::Zero for YololNumber<T>
 {
     fn zero() -> Self
     {
-        YololNumber(T::zero())
+        YololNumber::from_value(T::zero())
     }
 
     fn is_zero(&self) -> bool
@@ -87,15 +105,15 @@ impl<T: InnerBounds> num_traits::Zero for YololNumber<T>
     }
 }
 
-impl<T: InnerBounds> num_traits::One for YololNumber<T>
+impl<T: YololOps> num_traits::One for YololNumber<T>
 {
     fn one() -> Self
     {
-        YololNumber(T::one())
+        YololNumber::from_value(T::one())
     }
 }
 
-impl<T: InnerBounds> num_traits::Num for YololNumber<T>
+impl<T: YololOps> num_traits::Num for YololNumber<T>
 {
     type FromStrRadixErr = String;
 
@@ -110,45 +128,51 @@ impl<T: InnerBounds> num_traits::Num for YololNumber<T>
     }
 }
 
-impl<T: InnerBounds> num_traits::FromPrimitive for YololNumber<T>
+impl<T: YololOps> num_traits::FromPrimitive for YololNumber<T>
 {
+    /// Treats the inputs as if it were a raw inner value.
+    /// This means it should be larger by a factor of 10_000 than the value you want.
     fn from_i64(num: i64) -> Option<Self>
     {
-        Self::generic_to_inner(num)
+        Self::try_to_inner(num)
     }
 
+    /// Treats the inputs as if it were a raw inner value.
+    /// This means it should be larger by a factor of 10_000 than the value you want.
     fn from_u64(num: u64) -> Option<Self>
     {
-        Self::generic_to_inner(num)
+        Self::try_to_inner(num)
     }
 }
 
-impl<T: InnerBounds> num_traits::ToPrimitive for YololNumber<T>
+impl<T: YololOps> num_traits::ToPrimitive for YololNumber<T>
 {
+    /// Directly outputs the raw inner value, does not scale it.
     fn to_i64(&self) -> Option<i64>
     {
-        self.generic_from_inner()
+        self.try_from_inner()
     }
 
+    /// Directly outputs the raw inner value, does not scale it.
     fn to_u64(&self) -> Option<u64>
     {
-        self.generic_from_inner()
+        self.try_from_inner()
     }
 }
 
-impl<T: InnerBounds> num_traits::NumCast for YololNumber<T>
+impl<T: YololOps> num_traits::NumCast for YololNumber<T>
 {
+    /// Treats the inputs as if it were a raw inner value.
+    /// This means it should be larger by a factor of 10_000 than the value you want.
     fn from<F>(input: F) -> Option<Self>
     where F: num_traits::ToPrimitive
     {
-        // Chose i128 because it's the largest signed type that could back YololNumber
-        let val = input.to_i128()?;
-
-        Some(YololNumber(T::from(val)?))
+        let raw_inner = T::from(input)?;
+        Some(YololNumber(raw_inner))
     }
 }
 
-impl<T: InnerBounds> num_traits::Bounded for YololNumber<T>
+impl<T: YololOps> num_traits::Bounded for YololNumber<T>
 {
     fn min_value() -> Self
     {
@@ -160,5 +184,99 @@ impl<T: InnerBounds> num_traits::Bounded for YololNumber<T>
     {
         let max = T::from(<i64 as num_traits::Bounded>::max_value()).unwrap_or(T::max_value());
         YololNumber(max)
+    }
+}
+
+// Move this out of here since it's a safe interface
+impl<T: YololOps> num_traits::Signed for YololNumber<T>
+{
+    fn abs(&self) -> Self
+    {
+        YololNumber(self.0.abs()).bound()
+    }
+
+    fn abs_sub(&self, other: &Self) -> Self
+    {
+        if self <= other
+        {
+            Self::zero()
+        }
+        else
+        {
+            (self - other).abs()
+        }
+    }
+
+    fn signum(&self) -> Self
+    {
+        if self.is_positive()
+        {
+            Self::one()
+        }
+        else if self.is_negative()
+        {
+            -Self::one()
+        }
+        else // self == 0
+        {
+            Self::zero()
+        }
+    }
+
+    fn is_positive(&self) -> bool
+    {
+        self > &Self::zero()
+    }
+
+    fn is_negative(&self) -> bool
+    {
+        self < &Self::zero()
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedAdd for YololNumber<T>
+{
+    fn checked_add(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_add(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedSub for YololNumber<T>
+{
+    fn checked_sub(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_sub(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedMul for YololNumber<T>
+{
+    fn checked_mul(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_mul(&other.0)?
+            .checked_div(&Self::conversion_val())
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedDiv for YololNumber<T>
+{
+    fn checked_div(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_mul(&Self::conversion_val())?
+            .checked_div(&other.0)
+            .map(|n| YololNumber(n))
+    }
+}
+
+impl<T: YololOps> num_traits::CheckedRem for YololNumber<T>
+{
+    fn checked_rem(&self, other: &Self) -> Option<Self>
+    {
+        self.0.checked_rem(&other.0)
+            .map(|n| YololNumber(n))
     }
 }
