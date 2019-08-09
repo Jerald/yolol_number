@@ -30,12 +30,12 @@ impl<T: YololOps> FromStr for YololNumber<T>
 
     fn from_str(string: &str) -> Result<Self, Self::Err>
     {
-        let matcher = Regex::new(r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[1-9]*))?$").expect("Unable to compile YololNumber::from_str regex!");
+        let matcher = Regex::new(r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[0-9]*))?$").expect("Unable to compile YololNumber::from_str regex!");
 
         let captures = match matcher.captures(string)
         {
             Some(caps) => caps,
-            None => return Err("[YololNumber::from_str] Input string didn't pass regex verification!".to_owned())
+            None => return Err(format!("[YololNumber::from_str] Input string didn't pass regex verification! Input: {}", string))
         };
 
         let sign = captures.name("sign");
@@ -67,19 +67,35 @@ impl<T: YololOps> FromStr for YololNumber<T>
         {
             Some(_) if dec_zeros >= 4 => T::zero(),
 
+            Some(num) if num.as_str().is_empty() => T::zero(),
             Some(num) => {
-                let slice_len = usize::min(num.as_str().len(), 4 - dec_zeros);
+                // How many digits are needed in the final number out of here
+                let nums_we_need = 4 - dec_zeros;
 
+                // If the slice is too short, clamp so we don't panic
+                let slice_len = usize::min(num.as_str().len(), nums_we_need);
                 assert!(slice_len > 0 && slice_len <= 4, "[YololNumber::from_str] Logic error! slice_len should be logically clamped in a range but it's not! slice_len: '{}'", slice_len);
 
+                let shift = {
+                    let shift_pow = nums_we_need - slice_len;
+                    assert!(shift_pow <= 3, "[YololNumber::from_str] Logic error _again_! shift_pow value is outside of it's logical range! shift_pow: '{}'", shift_pow);
+
+                    T::from((0..shift_pow).fold(1, |a, _| a*10))
+                        .ok_or_else(|| "[YololNumber::from_str] Failure to convert folded shift value into type T!".to_owned())?
+                };
+
                 num.as_str()[0..slice_len].parse::<T>()
+                    .map(|n| n * shift)
                     .or_else(|_| Err("[YololNumber::from_str] Unknown error caused a failure is parsing the main digits!".to_owned()))?
             },
 
             None => T::zero(),
         };
 
-        YololNumber::from_split(main_num * sign_num, decimal_num)
+        // println!("Decimal_num: {}", decimal_num);
+
+        YololNumber::from_split(main_num, decimal_num)
+            .map(|n: YololNumber<T>| YololNumber::from_inner(n.0 * sign_num))
             .ok_or_else(|| "[YololNumber::from_str] Failure to create yolol number from split inputs!".to_owned())
     }
 }
@@ -88,8 +104,19 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
-        let main_digits = self.0 / Self::conversion_val();
         let sign = self.0.signum();
+
+        let sign_str = match sign
+        {
+            n if n == T::one()  => "",
+            n if n == T::zero() => "",
+            n if n == -T::one() => "-",
+
+            // Fix this stupidity
+            _ => panic!()
+        };
+
+        let main_digits = self.0 / Self::conversion_val();
 
         let ten = T::from(10).ok_or(std::fmt::Error {})?;
         let hundred = ten * ten;
@@ -99,6 +126,8 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
         let tens = ((self.0/ten) % ten) * sign;
         let hundreds = ((self.0/hundred) % ten) * sign;
         let thousands = ((self.0/thousand) % ten) * sign;
+
+        write!(f, "{}", sign_str)?;
 
         let format = if ones != T::zero()
         {

@@ -31,11 +31,40 @@ fn deserialize_test()
     println!("deserialize_test: {:?}", out);
 }
 
+#[inline]
+fn from_str_helper(input: &'static str, output: i128)
+{
+    println!("Input: {:?}", input);
+    let num: YololNumber<i128> = input.parse::<YololNumber<i128>>().unwrap();
+    println!("Num: {:?}", num);
+    let output_num = YololNumber::from_inner(output);
+    assert_eq!(num, output_num, "Expected inner: {:?}. Num inner: {:?}", output_num.get_inner(), num.get_inner());
+    println!();
+}
+
 #[test]
 fn from_str_test()
 {
-    let num: YololNumber<i128> = "+3.14159".parse::<YololNumber<i128>>().unwrap();
-    println!("Num: {:?}", num);
+    from_str_helper("+3.14159", 3_1415);
+
+    from_str_helper("1.0", 1_0000);
+
+    from_str_helper("0.1", 0_1000);
+
+    from_str_helper("0.01", 0_0100);
+
+    from_str_helper("0.001", 0_0010);
+
+    from_str_helper("0.0001", 0_0001);
+
+    from_str_helper("0.00001", 0_0000);
+
+    from_str_helper("-0.1", -0_1000);
+
+    from_str_helper("0.0110", 0_0110);
+    from_str_helper("-0.0110", -0_0110);
+
+    from_str_helper("9999999999999999999999999999", 922337203685477_5807)
 }
 
 #[test]

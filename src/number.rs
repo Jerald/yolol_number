@@ -44,10 +44,16 @@ impl<T: YololOps> YololNumber<T>
         // Clamps the decimal to between 0 and 9999, to ensure we don't get weirdness
         let decimal = {
             let val = T::from(decimal)?;
-            num_traits::clamp(val, T::zero(), Self::conversion_val() - T::one())
+            val.abs() % Self::conversion_val()
         };
 
         Some(YololNumber(main + decimal).bound())
+    }
+
+    /// Returns raw inner value
+    pub fn get_inner(self) -> T
+    {
+        self.0
     }
 
     /// Returns the value used to multiplicatively shift between the raw inner and actual value
