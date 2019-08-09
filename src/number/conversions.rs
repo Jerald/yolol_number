@@ -41,7 +41,7 @@ impl<T: YololOps> FromStr for YololNumber<T>
 
     fn from_str(string: &str) -> Result<Self, Self::Err>
     {
-        let matcher = Regex::new(r"^(?P<sign>+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0+)(?P<dec_num>[1-9]+))?$").expect("Unable to compile YololNumber::from_str regex!");
+        let matcher = Regex::new(r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[1-9]*))?$").expect("Unable to compile YololNumber::from_str regex!");
 
         let captures = match matcher.captures(string)
         {
@@ -81,7 +81,7 @@ impl<T: YololOps> FromStr for YololNumber<T>
             Some(num) => {
                 let slice_len = usize::min(num.as_str().len(), 4 - dec_zeros);
 
-                assert!(slice_len > 0 && slice_len < 4, "[YololNumber::from_str] Logic error! slice_len should be logically clamped in a range but it's not!");
+                assert!(slice_len > 0 && slice_len <= 4, "[YololNumber::from_str] Logic error! slice_len should be logically clamped in a range but it's not! slice_len: '{}'", slice_len);
 
                 num.as_str()[0..slice_len].parse::<T>()
                     .or_else(|_| Err("[YololNumber::from_str] Unknown error caused a failure is parsing the main digits!".to_owned()))?

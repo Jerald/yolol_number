@@ -32,14 +32,12 @@ fn deserialize_test()
     println!("deserialize_test: {:?}", out);
 }
 
-// #[test]
-// fn checked_mul_test()
-// {
-//     let num: YololNumber<i128> = YololNumber::from_value(10);
-//     let num = num.checked_mul(&YololNumber::from_value(5)).unwrap();
-
-//     println!("Num: {}", num);
-// }
+#[test]
+fn from_str_test()
+{
+    let num: YololNumber<i128> = "+3.14159".parse::<YololNumber<i128>>().unwrap();
+    println!("Num: {:?}", num);
+}
 
 #[test]
 fn yolol_mul_test()
