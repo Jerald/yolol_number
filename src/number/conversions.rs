@@ -116,7 +116,7 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
             _ => panic!()
         };
 
-        let main_digits = self.0 / Self::conversion_val();
+        let main_digits = (self.0 / Self::conversion_val()).abs();
 
         let ten = T::from(10).ok_or(std::fmt::Error {})?;
         let hundred = ten * ten;
