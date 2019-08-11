@@ -42,6 +42,8 @@ fn from_str_helper(input: &'static str, output: i128)
     println!();
 }
 
+#[allow(clippy::zero_prefixed_literal)]
+#[allow(clippy::inconsistent_digit_grouping)]
 #[test]
 fn from_str_test()
 {
@@ -67,6 +69,14 @@ fn from_str_test()
     from_str_helper("9999999999999999999999999999", 922337203685477_5807);
 
     from_str_helper("-1", -1_0000);
+}
+
+#[test]
+fn sin_test()
+{
+    let num: YololNumber<i128> = YololNumber::from_value(45);
+    println!("Num: {}", num);
+    println!("Sin: {}", num.sin()); 
 }
 
 #[test]
