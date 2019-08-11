@@ -80,10 +80,7 @@ where f64: AsPrimitive<T>
 
     pub fn sin(self) -> Self
     {
-        println!("Float value: {}", self.float_value());
         let rads = self.float_value().to_radians();
-        println!("Rads: {}", rads);
-
         YololNumber::from_float(rads.sin())
     }
 
