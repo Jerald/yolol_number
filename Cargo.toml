@@ -1,6 +1,6 @@
 [package]
 name = "yolol_number"
-version = "0.2.2"
+version = "0.3.0"
 authors = ["Matrixmage <osmithsi@sfu.ca>"]
 edition = "2018"
 
