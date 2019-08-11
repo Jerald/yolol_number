@@ -1,7 +1,7 @@
 // pub type InnerType = i64;
 // pub const CONVERSION_CONST: InnerType = 10000;
 
-use std::fmt::Display;
+use std::fmt::{Display, Debug};
 use std::str::FromStr;
 use num_traits::*;
 
@@ -11,4 +11,4 @@ pub trait InnerBounds = 'static + NumBounds + Signed + Bounded + CheckedAdd + Ch
 // Pow<Self> + Saturating + CheckedDiv + CheckedRem + CheckedMul;
 
 // Traits needed to interact with a YololNumber
-pub trait NumBounds = Display + FromStr + Clone + Copy + Eq + PartialEq + Ord + PartialOrd + Num + NumOps + NumCast;
+pub trait NumBounds = Display + Debug + FromStr + Clone + Copy + Eq + PartialEq + Ord + PartialOrd + Num + NumOps + NumCast;

@@ -122,6 +122,7 @@ impl<T: YololOps> num_traits::Num for YololNumber<T>
         }
 
         input.parse::<YololNumber<T>>()
+            .map_err(|e| e.into())
     }
 }
 
