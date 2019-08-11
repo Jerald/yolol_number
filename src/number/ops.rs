@@ -38,6 +38,14 @@ where f64: AsPrimitive<T>
         self_float / conversion_float
     }
 
+    // Converts a float value back into a valid inner
+    #[inline]
+    fn from_float(input: f64) -> Self
+    {
+        let inner_float: f64 = input * Self::conversion_val().as_();
+        YololNumber(inner_float.as_()).bound()
+    }
+
     pub fn pow(self, other: Self) -> Self
     {
         let pow = self.float_value()
@@ -67,43 +75,46 @@ where f64: AsPrimitive<T>
     pub fn sqrt(self) -> Self
     {
         let output = self.float_value().sqrt();
-        YololNumber::from_value(output.as_())
+        YololNumber::from_float(output)
     }
 
     pub fn sin(self) -> Self
     {
+        println!("Float value: {}", self.float_value());
         let rads = self.float_value().to_radians();
-        YololNumber::from_value(rads.sin().as_())
+        println!("Rads: {}", rads);
+
+        YololNumber::from_float(rads.sin())
     }
 
     pub fn cos(self) -> Self
     {
         let rads = self.float_value().to_radians();
-        YololNumber::from_value(rads.cos().as_())
+        YololNumber::from_float(rads.cos())
     }
 
     pub fn tan(self) -> Self
     {
         let rads = self.float_value().to_radians();
-        YololNumber::from_value(rads.tan().as_())
+        YololNumber::from_float(rads.tan())
     }
 
     pub fn arcsin(self) -> Self
     {
         let rads = self.float_value().asin();
-        YololNumber::from_value(rads.to_degrees().as_())
+        YololNumber::from_float(rads.to_degrees())
     }
 
     pub fn arccos(self) -> Self
     {
         let rads = self.float_value().acos();
-        YololNumber::from_value(rads.to_degrees().as_())
+        YololNumber::from_float(rads.to_degrees())
     }
 
     pub fn arctan(self) -> Self
     {
         let rads = self.float_value().atan();
-        YololNumber::from_value(rads.to_degrees().as_())
+        YololNumber::from_float(rads.to_degrees())
     }
 }
 
