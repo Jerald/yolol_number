@@ -4,8 +4,6 @@
 #![allow(clippy::zero_prefixed_literal)]
 #![allow(clippy::inconsistent_digit_grouping)]
 
-use std::convert::{TryFrom, TryInto};
-
 use num_traits::{
     NumCast,
     AsPrimitive
@@ -17,7 +15,7 @@ use crate::{
 };
 
 #[inline]
-fn num_helper(num: YololNumber<i128>, expected: i128)
+fn num_helper(num: YololNumber, expected: i128)
 {
     println!("Num: {:?}", num);
     println!("Expected value:  {}", expected);
@@ -32,7 +30,7 @@ fn num_helper(num: YololNumber<i128>, expected: i128)
 fn from_str_helper(input: &'static str, expected: i128)
 {
     println!("Str input: {:?}", input);
-    let num: YololNumber<i128> = input.parse::<YololNumber<i128>>().unwrap();
+    let num: YololNumber = input.parse::<YololNumber>().unwrap();
 
     num_helper(num, expected)
 }
@@ -42,7 +40,7 @@ fn trig_helper(trig: &'static str, input: f64, expected: f64)
 {
     println!("Trig input: '{}({})'", trig, input);
 
-    let num = YololNumber::<i128>::from_float(input);
+    let num = YololNumber::from_float(input);
     let (num, output) = match trig
     {
         "sin" => (num.sin(), expected.to_radians().sin()),
@@ -66,7 +64,7 @@ fn serialize_test()
 {
     use serde_json;
 
-    let num: YololNumber<i128> = NumCast::from(15.640).unwrap();
+    let num: YololNumber = NumCast::from(15.640).unwrap();
     let out = serde_json::to_string(&num).unwrap();
     println!("serialize_test: {}", out);
 }
@@ -74,7 +72,7 @@ fn serialize_test()
 #[test]
 fn deserialize_test()
 {
-    let out: YololNumber<i128> = serde_json::from_str("\"1.564\"").unwrap();
+    let out: YololNumber = serde_json::from_str("\"1.564\"").unwrap();
     println!("deserialize_test: {:?}", out);
 }
 
@@ -124,7 +122,7 @@ fn trig_test()
 #[test]
 fn sin_test()
 {
-    let num: YololNumber<i128> = YololNumber::from_value(45);
+    let num: YololNumber = YololNumber::from_value(45);
     println!("Num: {}", num);
     println!("Sin: {}", num.sin()); 
 }
@@ -132,7 +130,7 @@ fn sin_test()
 #[test]
 fn cos_test()
 {
-    let num: YololNumber<i128> = YololNumber::from_value(60);
+    let num: YololNumber = YololNumber::from_value(60);
     println!("Num: {}", num);
     println!("Cos: {}", num.cos()); 
 }
@@ -140,7 +138,7 @@ fn cos_test()
 #[test]
 fn tan_test()
 {
-    let num: YololNumber<i128> = YololNumber::from_value(45);
+    let num: YololNumber = YololNumber::from_value(45);
 
     println!("Test: {}", 45_f64.to_radians());
     println!("Num: {}", num);
@@ -150,8 +148,8 @@ fn tan_test()
 #[test]
 fn yolol_mul_test()
 {
-    let num: YololNumber<i128> = YololNumber::from_value(10);
-    let temp: YololNumber<i128> = YololNumber::from_value(4);
+    let num: YololNumber = YololNumber::from_value(10);
+    let temp: YololNumber = YololNumber::from_value(4);
 
     let val = num.yolol_mul(temp);
 
