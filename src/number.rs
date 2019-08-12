@@ -56,6 +56,18 @@ impl<T: YololOps> YololNumber<T>
         self.0
     }
 
+    /// Returns the truthy identity
+    pub fn truthy() -> Self
+    {
+        YololNumber::one()
+    }
+
+    /// Returns the falsy identity
+    pub fn falsy() -> Self
+    {
+        YololNumber::zero()
+    }
+
     /// Returns the value used to multiplicatively shift between the raw inner and actual value
     fn conversion_val() -> T
     {
@@ -79,6 +91,7 @@ impl<T: YololOps> YololNumber<T>
     fn try_to_inner(input: impl NumBounds) -> Option<Self>
     {
         T::from(input)
+            // Clippy LIES!!! Not a redundant closure
             .map(|n| YololNumber(n))
     }
 
