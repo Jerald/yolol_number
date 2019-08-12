@@ -30,7 +30,7 @@ where f64: AsPrimitive<T>
 {
     // Converts the inner to a float and scales it into it's actual value range
     #[inline]
-    fn float_value(self) -> f64
+    pub fn float_value(self) -> f64
     {
         let self_float: f64 = self.0.as_();
         let conversion_float: f64 = Self::conversion_val().as_();
@@ -40,10 +40,10 @@ where f64: AsPrimitive<T>
 
     // Converts a float value back into a valid inner
     #[inline]
-    fn from_float(input: f64) -> Self
+    pub fn from_float(input: f64) -> Self
     {
         let inner_float: f64 = input * Self::conversion_val().as_();
-        YololNumber(inner_float.as_()).bound()
+        YololNumber(inner_float.round().as_()).bound()
     }
 
     pub fn pow(self, other: Self) -> Self
@@ -96,19 +96,19 @@ where f64: AsPrimitive<T>
         YololNumber::from_float(rads.tan())
     }
 
-    pub fn arcsin(self) -> Self
+    pub fn asin(self) -> Self
     {
         let rads = self.float_value().asin();
         YololNumber::from_float(rads.to_degrees())
     }
 
-    pub fn arccos(self) -> Self
+    pub fn acos(self) -> Self
     {
         let rads = self.float_value().acos();
         YololNumber::from_float(rads.to_degrees())
     }
 
-    pub fn arctan(self) -> Self
+    pub fn atan(self) -> Self
     {
         let rads = self.float_value().atan();
         YololNumber::from_float(rads.to_degrees())
