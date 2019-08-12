@@ -3,6 +3,7 @@ use num_traits::{
     Bounded,
     cast::{
         NumCast,
+        AsPrimitive,
     },
 };
 
@@ -69,10 +70,13 @@ impl<T: YololOps> YololNumber<T>
         YololNumber::zero()
     }
 
-    /// Returns the value used to multiplicatively shift between the raw inner and actual value
-    fn conversion_val() -> T
+    /// Returns the value used to multiplicatively shift between the raw inner and actual value.
+    /// Call as `conversion_val::<T>()` to get the conversion value in a given type T.
+    fn conversion_val<F: 'static + Copy>() -> F
+    where
+        T: AsPrimitive<F>
     {
-        T::from(10000).expect("Using YololNumber with a backing type that can't express 10,000!")
+        T::from(10000).expect("Using YololNumber with a backing type that can't express 10,000!").as_()
     }
 
     /// Converts a given value to the raw inner that expresses it
@@ -100,6 +104,16 @@ impl<T: YololOps> YololNumber<T>
     fn try_from_inner<L: NumCast>(&self) -> Option<L>
     {
         L::from(self.0)
+    }
+}
+
+// Why in gods name is a reflexive blanket implementation not a thing...
+// This has been such a pain. Screw you num_traits
+impl<T: YololOps> AsPrimitive<Self> for YololNumber<T>
+{
+    fn as_(self) -> Self
+    {
+        self
     }
 }
 
@@ -177,7 +191,8 @@ impl<T: YololOps> num_traits::NumCast for YololNumber<T>
     /// Treats the inputs as if it were a raw inner value.
     /// This means it should be larger by a factor of 10_000 than the value you want.
     fn from<F>(input: F) -> Option<Self>
-    where F: num_traits::ToPrimitive
+    where
+        F: num_traits::ToPrimitive
     {
         let raw_inner = T::from(input)?;
         Some(YololNumber(raw_inner))
