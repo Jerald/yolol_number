@@ -85,7 +85,7 @@ impl<T: YololOps> std::fmt::Debug for YololNumber<T>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
-        write!(f, "YololNumber({})", self)
+        write!(f, "YololNumber({})", self.0)
     }
 }
 
