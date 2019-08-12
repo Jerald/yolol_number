@@ -22,6 +22,8 @@ use crate::yolol_ops::YololOps;
 
 use crate::consts::{
     InnerBounds,
+    ArgBounds,
+    NumBounds,
 };
 
 // These ops internally use f64, so we need special trait bounds for them
@@ -134,8 +136,11 @@ impl<T: YololOps> YololNumber<T>
         YololNumber(self.0 + adjustment).bound()
     }
 
-    pub fn clamp(self, min: Self, max: Self) -> Self
+    pub fn clamp(self, min: impl ArgBounds<T>, max: impl ArgBounds<T>) -> Self
     {
+        let min = Self::from_value(min.as_());
+        let max = Self::from_value(max.as_());
+
         num_traits::clamp(self, min, max).bound()
     }
 }
