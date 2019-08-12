@@ -1,6 +1,3 @@
-// pub type InnerType = i64;
-// pub const CONVERSION_CONST: InnerType = 10000;
-
 use std::fmt::{Display, Debug};
 use std::str::FromStr;
 use num_traits::*;
