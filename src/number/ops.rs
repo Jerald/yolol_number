@@ -23,7 +23,6 @@ use crate::yolol_ops::YololOps;
 use crate::consts::{
     InnerBounds,
     ArgBounds,
-    NumBounds,
 };
 
 // These ops internally use f64, so we need special trait bounds for them
@@ -35,16 +34,14 @@ where f64: AsPrimitive<T>
     pub fn float_value(self) -> f64
     {
         let self_float: f64 = self.0.as_();
-        let conversion_float: f64 = Self::conversion_val().as_();
-
-        self_float / conversion_float
+        self_float / Self::conversion_val::<f64>()
     }
 
     // Converts a float value back into a valid inner
     #[inline]
     pub fn from_float(input: f64) -> Self
     {
-        let inner_float: f64 = input * Self::conversion_val().as_();
+        let inner_float = input * Self::conversion_val::<f64>();
         YololNumber(inner_float.round().as_()).bound()
     }
 
