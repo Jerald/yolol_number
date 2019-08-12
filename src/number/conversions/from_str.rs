@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
 use regex::Regex;
+use lazy_static::lazy_static;
 
 use super::{
     YololNumber,
@@ -16,15 +17,20 @@ mod error;
 use error::FromStrError as Error;
 use error::FromStrErrorKind as ErrorKind;
 
+static YOLOL_NUM_MATCHER_REGEX: &str = r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[0-9]*))?$";
+
+lazy_static! {
+    static ref YOLOL_NUM_MATCHER: Regex = Regex::new(YOLOL_NUM_MATCHER_REGEX)
+        .expect("Unable to compile YololNumber::from_str regex!");
+}
+
 impl<T: YololOps> FromStr for YololNumber<T>
 {
     type Err = Error<T>;
 
     fn from_str(string: &str) -> Result<Self, Self::Err>
     {
-        let matcher = Regex::new(r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[0-9]*))?$").expect("Unable to compile YololNumber::from_str regex!");
-
-        let captures = matcher.captures(string)
+        let captures = YOLOL_NUM_MATCHER.captures(string)
             .ok_or_else(|| Error::new(ErrorKind::InputVerificationFailure(string.to_owned()), None))?;
 
         let sign = captures.name("sign");
@@ -42,7 +48,6 @@ impl<T: YololOps> FromStr for YololNumber<T>
             Some(sign) if sign.as_str() == "-" => -T::one(),
 
             Some(sign) => return Err(Error::new(ErrorKind::InvalidSignMatched(sign.as_str().to_owned()), None))
-            // _ => return Err("[YololNumber::from_str] Somehow the sign matched by the regex isn't '+' or '-'...".to_owned())
         };
 
         let main_num = match main
