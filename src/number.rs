@@ -86,7 +86,7 @@ impl<T: YololOps> YololNumber<T>
     }
 
     /// Clamps the raw inner to the bounds of its expressible values
-    fn bound(self) -> Self
+    pub fn bound(self) -> Self
     {
         num_traits::clamp(self, Self::min_value(), Self::max_value())
     }
