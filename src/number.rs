@@ -7,7 +7,8 @@ use num_traits::{
 };
 
 use crate::consts::{
-    NumBounds
+    NumBounds,
+    ArgBounds,
 };
 
 use crate::yolol_ops::YololOps;
@@ -22,16 +23,16 @@ pub struct YololNumber<T: YololOps>(T);
 impl<T: YololOps> YololNumber<T>
 {
     /// Creates a YololNumber with the same value as the input. This will shift the input as necessary.
-    pub fn from_value(input: T) -> Self
+    pub fn from_value(input: impl ArgBounds<T>) -> Self
     {
-        let inner = Self::make_inner(input);
+        let inner = Self::make_inner(input.as_());
         YololNumber(inner).bound()
     }
 
     /// Creates a YololNumber with the input directly used as the raw inner. 
-    pub fn from_inner(input: T) -> Self
+    pub fn from_inner(input: impl ArgBounds<T>) -> Self
     {
-        YololNumber(input).bound()
+        YololNumber(input.as_()).bound()
     }
 }
 
