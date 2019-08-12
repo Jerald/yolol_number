@@ -1,7 +1,14 @@
 #![cfg(test)]
 
+// The way I right numbers to make them easy to read makes clippy angry
+#![allow(clippy::zero_prefixed_literal)]
+#![allow(clippy::inconsistent_digit_grouping)]
+
+use std::convert::{TryFrom, TryInto};
+
 use num_traits::{
     NumCast,
+    AsPrimitive
 };
 
 use crate::{
@@ -9,9 +16,49 @@ use crate::{
     YololOps
 };
 
-#[test]
-fn it_works() {
-    assert_eq!(2 + 2, 4);
+#[inline]
+fn num_helper(num: YololNumber<i128>, expected: i128)
+{
+    println!("Num: {:?}", num);
+    println!("Expected value:  {}", expected);
+
+    let expected = num_traits::clamp(expected, std::i64::MIN.into(), std::i64::MAX.into());
+
+    assert_eq!(expected, num.get_inner(), "Expected inner: {:?}. Actual inner: {:?}", expected, num.get_inner());
+    println!();
+}
+
+#[inline]
+fn from_str_helper(input: &'static str, expected: i128)
+{
+    println!("Str input: {:?}", input);
+    let num: YololNumber<i128> = input.parse::<YololNumber<i128>>().unwrap();
+
+    num_helper(num, expected)
+}
+
+#[inline]
+fn trig_helper(trig: &'static str, input: f64, expected: f64)
+{
+    println!("Trig input: '{}({})'", trig, input);
+
+    let num = YololNumber::<i128>::from_float(input);
+    let (num, output) = match trig
+    {
+        "sin" => (num.sin(), expected.to_radians().sin()),
+        "cos" => (num.cos(), expected.to_radians().cos()),
+        "tan" => (num.tan(), expected.to_radians().tan()),
+        "asin" => (num.asin(), expected.to_radians().asin()),
+        "acos" => (num.acos(), expected.to_radians().acos()),
+        "atan" => (num.atan(), expected.to_radians().atan()),
+
+        _ => panic!("[trig_helper] Bad trig function input!")
+    };
+
+    println!("Trig expected in f64: '{}({}) = {}'", trig, input, output);
+    let output: i128 = (output*10000_f64).round().as_();
+
+    num_helper(num, output);
 }
 
 #[test]
@@ -31,19 +78,7 @@ fn deserialize_test()
     println!("deserialize_test: {:?}", out);
 }
 
-#[inline]
-fn from_str_helper(input: &'static str, output: i128)
-{
-    println!("Input: {:?}", input);
-    let num: YololNumber<i128> = input.parse::<YololNumber<i128>>().unwrap();
-    println!("Num: {:?}", num);
-    let output_num = YololNumber::from_inner(output);
-    assert_eq!(num, output_num, "Expected inner: {:?}. Num inner: {:?}", output_num.get_inner(), num.get_inner());
-    println!();
-}
 
-#[allow(clippy::zero_prefixed_literal)]
-#[allow(clippy::inconsistent_digit_grouping)]
 #[test]
 fn from_str_test()
 {
@@ -72,11 +107,44 @@ fn from_str_test()
 }
 
 #[test]
+fn trig_test()
+{
+    for i in 0..=360
+    {
+        println!("Int i: {}", i);
+        let i = <f64 as std::convert::From<_>>::from(i);
+        println!("f64 i: {}", i);
+        trig_helper("sin", i, i);
+        trig_helper("cos", i, i);
+        trig_helper("tan", i, i);
+    }
+}
+
+
+#[test]
 fn sin_test()
 {
     let num: YololNumber<i128> = YololNumber::from_value(45);
     println!("Num: {}", num);
     println!("Sin: {}", num.sin()); 
+}
+
+#[test]
+fn cos_test()
+{
+    let num: YololNumber<i128> = YololNumber::from_value(60);
+    println!("Num: {}", num);
+    println!("Cos: {}", num.cos()); 
+}
+
+#[test]
+fn tan_test()
+{
+    let num: YololNumber<i128> = YololNumber::from_value(45);
+
+    println!("Test: {}", 45_f64.to_radians());
+    println!("Num: {}", num);
+    println!("Tan: {}", num.tan());
 }
 
 #[test]
