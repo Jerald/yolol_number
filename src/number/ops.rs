@@ -186,6 +186,34 @@ impl<T: YololOps> num_traits::Signed for YololNumber<T>
     }
 }
 
+impl<T: YololOps> YololNumber<T>
+{
+    /// Takes the absolute value of the number.
+    pub fn abs(self) -> Self
+    {
+        <Self as num_traits::Signed>::abs(&self)
+    }
+
+    /// Returns `-1`, `0`, or `1` based on if the number
+    /// is negative, zero, or positive respectively.
+    pub fn signum(self) -> Self
+    {
+        <Self as num_traits::Signed>::signum(&self)
+    }
+
+    /// Returns if the number is strictly positive.
+    pub fn is_positive(self) -> bool
+    {
+        <Self as num_traits::Signed>::is_positive(&self)
+    }
+
+    /// Returns if the number is strictly negative.
+    pub fn is_negative(self) -> bool
+    {
+        <Self as num_traits::Signed>::is_negative(&self)
+    }
+}
+
 impl<T: YololOps> cmp::Eq for YololNumber<T> {}
 
 impl<T: YololOps> cmp::PartialEq for YololNumber<T>
