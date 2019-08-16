@@ -77,6 +77,17 @@ impl<T: YololOps> YololNumber<T>
         num_traits::clamp(self, Self::min_value(), Self::max_value())
     }
 
+    /// Returns the value of the number in some other type. Is likely lossy.
+    /// Call as `get_value::<T>()` to get the value in a given type T.
+    pub fn get_value<F>(self) -> F
+    where
+        T: AsPrimitive<F>,
+        F: 'static + Copy + std::ops::Div<Output=F>
+    {
+        let inner: F = self.0.as_();
+        inner / Self::conversion_val::<F>()
+    }
+
     /// Returns the value used to multiplicatively shift between the raw inner and actual value.
     /// Call as `conversion_val::<T>()` to get the conversion value in a given type T.
     fn conversion_val<F: 'static + Copy>() -> F
