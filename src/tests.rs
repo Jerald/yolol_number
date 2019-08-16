@@ -1,6 +1,6 @@
 #![cfg(test)]
 
-// The way I right numbers to make them easy to read makes clippy angry
+// The way I write numbers to make them easy to read makes clippy angry
 #![allow(clippy::zero_prefixed_literal)]
 #![allow(clippy::inconsistent_digit_grouping)]
 
@@ -9,10 +9,7 @@ use num_traits::{
     AsPrimitive
 };
 
-use crate::{
-    YololNumber,
-    YololOps
-};
+use crate::prelude::*;
 
 #[inline]
 fn num_helper(num: YololNumber, expected: i128)

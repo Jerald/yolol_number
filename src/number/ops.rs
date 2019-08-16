@@ -177,42 +177,20 @@ impl<T: YololOps> num_traits::Signed for YololNumber<T>
         }
     }
 
+    // Clippy seems to think that the ref is a mistake,
+    // but it won't compile without it :/
+    #[allow(clippy::op_ref)]
     fn is_positive(&self) -> bool
     {
         self > &Self::zero()
     }
 
+    // Clippy seems to think that the ref is a mistake,
+    // but it won't compile without it :/
+    #[allow(clippy::op_ref)]
     fn is_negative(&self) -> bool
     {
         self < &Self::zero()
-    }
-}
-
-impl<T: YololOps> YololNumber<T>
-{
-    /// Takes the absolute value of the number.
-    pub fn abs(self) -> Self
-    {
-        <Self as num_traits::Signed>::abs(&self)
-    }
-
-    /// Returns `-1`, `0`, or `1` based on if the number
-    /// is negative, zero, or positive respectively.
-    pub fn signum(self) -> Self
-    {
-        <Self as num_traits::Signed>::signum(&self)
-    }
-
-    /// Returns if the number is strictly positive.
-    pub fn is_positive(self) -> bool
-    {
-        <Self as num_traits::Signed>::is_positive(&self)
-    }
-
-    /// Returns if the number is strictly negative.
-    pub fn is_negative(self) -> bool
-    {
-        <Self as num_traits::Signed>::is_negative(&self)
     }
 }
 
@@ -324,7 +302,7 @@ impl<T: YololOps> Div for YololNumber<T>
     type Output = Self;
     fn div(self, other: Self) -> Self
     {
-        self.yolol_div(other).unwrap()
+        self.yolol_div(other).expect("[YololNumber::div] Division error! Use yolol_div for the safe equivalent!")
     }
 }
 impl_for_refs!( impl<T: YololOps> Div for YololNumber<T> { fn div() -> Self } );
@@ -353,13 +331,13 @@ impl<T: YololOps> Not for YololNumber<T>
     type Output = Self;
     fn not(self) -> Self
     {
-        if self.0 == T::zero()
+        if self == Self::falsy()
         {
-            YololNumber::from_value(T::one())
+            Self::truthy()
         }
         else
         {
-            YololNumber(T::zero())
+            Self::falsy()
         }
     }
 }
