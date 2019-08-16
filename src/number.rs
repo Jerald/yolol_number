@@ -44,10 +44,10 @@ impl<T: YololOps> YololNumber<T>
     {
         let main = Self::make_inner(T::from(main)?);
 
-        // Clamps the decimal to between 0 and 9999, to ensure we don't get weirdness
+        // Clamps the decimal to between -9999 and 9999, to ensure we don't get weirdness
         let decimal = {
             let val = T::from(decimal)?;
-            val.abs() % Self::conversion_val()
+            val % Self::conversion_val()
         };
 
         Some(YololNumber(main + decimal).bound())

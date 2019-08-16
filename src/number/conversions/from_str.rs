@@ -115,8 +115,12 @@ impl<T: YololOps> FromStr for YololNumber<T>
             None => T::zero(),
         };
 
-        // Finally construct the final YololNumber, multiplying the main num by the sign
-        YololNumber::<T>::from_split(main_num * sign_num, decimal_num)
+        // Multiply both numbers by the sign num to ensure consistent sign
+        let main_num = main_num * sign_num;
+        let decimal_num = decimal_num * sign_num;
+
+        // Finally, construct the final YololNumber!
+        YololNumber::<T>::from_split(main_num, decimal_num)
             .ok_or_else(|| Error::FromSplitCreationFailure)
     }
 }
