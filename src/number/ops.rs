@@ -300,9 +300,10 @@ impl_for_refs!( impl<T: YololOps> Mul for YololNumber<T> { fn mul() -> Self } );
 impl<T: YololOps> Div for YololNumber<T>
 {
     type Output = Self;
-    fn div(self, other: Self) -> Self
+    fn div(self, _other: Self) -> Self
     {
-        self.yolol_div(other).expect("[YololNumber::div] Division error! Use yolol_div for the safe equivalent!")
+        // I hate having to do this, but num_traits backed me into a corner...
+        panic!("DON'T DO BARE DIVISION WITH YOLOL NUMBERS. Seriously, it's annoying. Use yolol_div instead.")
     }
 }
 impl_for_refs!( impl<T: YololOps> Div for YololNumber<T> { fn div() -> Self } );
