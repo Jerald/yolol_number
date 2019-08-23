@@ -40,7 +40,8 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
             _ => ""
         };
 
-        let positive_inner = self.abs().0;
+        // This is hacky due to overflow/underflow behaviour, fix eventually
+        let positive_inner = self.0.abs();
         let main_digits = positive_inner / Self::conversion_val();
 
         let ten = T::from(10).expect("[<YololNumber as Display>::fmt] Inner type is unable to express 10! Pick a better inner type...");
