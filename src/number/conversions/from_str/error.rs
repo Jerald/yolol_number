@@ -3,26 +3,32 @@ use std::fmt;
 #[derive(Debug)]
 pub enum FromStrError
 {
-    // Holds the input that failed verification
+    /// The input that failed regex verification.
     InputVerificationFailure,
-    // Holds the thing that matched as a sign
+    /// The regex matched sign didn't match anything expected.
     InvalidSignMatched,
 
-    // Holds the main digits that failed to parse
+    /// The regex matched main digits (left of decimal) failed to
+    /// parse into the YololNumber backing type.
     MainDigitsParseError,
-    // Holds the input
+    /// No main digits were matched by the regex.
     NoMainDigits,
 
-    // Holds the slice_len that broke bounds 
+    /// A logic error occurred in calculating how many
+    /// decimals to extract from the slice of their characters.
     DecimalSliceLenLogicError,
-    // Holds the shift power that broke bounds
+    /// A logic error occurred in calculating the power to
+    /// shift the decimals to get the correct output value.
     DecimalShiftPowLogicError,
-    // Holds the shift value that couldn't be converted to T
+    /// The value to shift the decimals by to get the correct value
+    /// failed to be converted to the YololNumber backing type.
     ShiftConversionFailure,
-    // Holds the decimal digits that failed to parse
+    /// The value-correct decimal characters failed to be parsed
+    /// into the YololNumber backing type.
     DecimalDigitsParseError,
 
-    // Holds the main num and decimal num that failed the creation
+    /// There was a failure in turning the split number values
+    /// into one YololNumber.
     FromSplitCreationFailure
 }
 

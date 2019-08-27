@@ -19,7 +19,7 @@ static YOLOL_NUM_MATCHER_REGEX: &str = r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?
 
 lazy_static! {
     static ref YOLOL_NUM_MATCHER: Regex = Regex::new(YOLOL_NUM_MATCHER_REGEX)
-        .expect("Unable to compile YololNumber::from_str regex!");
+        .expect("Unable to compile YololNumber::from_str regex! The crate is somehow broken :(");
 }
 
 impl<T: YololOps> FromStr for YololNumber<T>
