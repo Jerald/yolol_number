@@ -3,14 +3,9 @@ use std::str::FromStr;
 use regex::Regex;
 use lazy_static::lazy_static;
 
-use super::{
-    YololNumber,
-};
+use super::YololNumber;
 
-use crate::traits::{
-    YololOps,
-    InnerBounds,
-};
+use crate::traits::YololOps;
 
 mod error;
 use error::FromStrError as Error;

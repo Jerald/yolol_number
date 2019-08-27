@@ -1,6 +1,4 @@
-use super::{
-    YololNumber,
-};
+use super::YololNumber;
 
 use crate::traits::YololOps;
 

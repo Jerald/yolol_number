@@ -21,10 +21,10 @@ pub mod prelude
     pub type YololNumber = crate::number::YololNumber<i128>;
 
     pub use num_traits::{
-        Num,
-        NumOps,
-        NumCast,
+        One,
+        Zero,
 
+        NumCast,
         AsPrimitive,
 
         Signed,

@@ -12,15 +12,14 @@ use std::ops::{
 
 use num_traits::{
     AsPrimitive,
+    Bounded,
+    Zero, One
 };
 
-use super::{
-    YololNumber,
-};
+use super::YololNumber;
 
 use crate::traits::{
     YololOps,
-    InnerBounds,
     ArgBounds,
 };
 
