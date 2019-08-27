@@ -1,4 +1,4 @@
-// #![cfg(test)]
+#![cfg(test)]
 
 // The way I write numbers to make them easy to read makes clippy angry
 #![allow(clippy::zero_prefixed_literal)]
