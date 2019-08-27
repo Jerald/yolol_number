@@ -138,3 +138,22 @@ fn tan_test()
     println!("Num: {}", num);
     println!("Tan: {}", num.tan());
 }
+
+#[test]
+fn pow_test()
+{
+    let num1 = YololNumber::from_inner(-1_000);
+    let num2 = YololNumber::from_inner(-0_500);
+    
+    let out = num1.pow(num2);
+    println!("Pow out = {:?}", out);
+}
+
+#[test]
+fn sqrt_test()
+{
+    let num1 = YololNumber::from_value(-1);
+    
+    let out = num1.sqrt();
+    println!("Sqrt out = {:?}", out);
+}
