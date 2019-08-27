@@ -1,4 +1,4 @@
-use crate::consts::InnerBounds;
+use crate::traits::InnerBounds;
 
 pub trait YololOps: InnerBounds
 {
@@ -49,8 +49,6 @@ impl<T: InnerBounds> YololOps for T
             }
         }
     }
-
-
 
     fn yolol_mul(self, right: Self) -> Self
     {
@@ -117,6 +115,7 @@ impl<T: InnerBounds> YololOps for T
 
         self > div
     }
+
     // TODO: add special case for flipping sign at bottom of range
     fn would_underflow_mul(self, right: Self) -> bool
     {

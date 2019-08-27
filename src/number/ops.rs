@@ -18,9 +18,8 @@ use super::{
     YololNumber,
 };
 
-use crate::yolol_ops::YololOps;
-
-use crate::consts::{
+use crate::traits::{
+    YololOps,
     InnerBounds,
     ArgBounds,
 };
@@ -29,7 +28,7 @@ use crate::consts::{
 impl<T: YololOps + AsPrimitive<f64>> YololNumber<T>
 where f64: AsPrimitive<T>
 {
-    // Converts the inner to a float and scales it into it's actual value range
+    /// Converts the inner to a float and scales it into it's actual value range
     #[inline]
     pub fn float_value(self) -> f64
     {
@@ -37,7 +36,7 @@ where f64: AsPrimitive<T>
         self_float / Self::conversion_val::<f64>()
     }
 
-    // Converts a float value back into a valid inner
+    /// Converts a float value into a YololNumber with correct rounding behaviour
     #[inline]
     pub fn from_float(input: f64) -> Self
     {
@@ -300,10 +299,12 @@ impl_for_refs!( impl<T: YololOps> Mul for YololNumber<T> { fn mul() -> Self } );
 impl<T: YololOps> Div for YololNumber<T>
 {
     type Output = Self;
-    fn div(self, _other: Self) -> Self
+
+    /// Performs yolol compliant division, but will return `0` in the case of error.
+    fn div(self, other: Self) -> Self
     {
-        // I hate having to do this, but num_traits backed me into a corner...
-        panic!("DON'T DO BARE DIVISION WITH YOLOL NUMBERS. Seriously, it's annoying. Use yolol_div instead.")
+        self.yolol_div(other)
+            .unwrap_or_else(YololNumber::zero)
     }
 }
 impl_for_refs!( impl<T: YololOps> Div for YololNumber<T> { fn div() -> Self } );

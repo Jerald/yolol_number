@@ -1,4 +1,4 @@
-#![cfg(test)]
+// #![cfg(test)]
 
 // The way I write numbers to make them easy to read makes clippy angry
 #![allow(clippy::zero_prefixed_literal)]
@@ -51,7 +51,7 @@ fn trig_helper(trig: &'static str, input: f64, expected: f64)
     };
 
     println!("Trig expected in f64: '{}({}) = {}'", trig, input, output);
-    let output: i128 = (output*10000_f64).round().as_();
+    let output: i128 = (output*1000_f64).round().as_();
 
     num_helper(num, output);
 }
@@ -77,28 +77,26 @@ fn deserialize_test()
 #[test]
 fn from_str_test()
 {
-    from_str_helper("+3.14159", 3_1415);
+    from_str_helper("+3.14159", 3_141);
 
-    from_str_helper("1.0", 1_0000);
+    from_str_helper("1.0", 1_000);
 
-    from_str_helper("0.1", 0_1000);
+    from_str_helper("0.1", 0_100);
 
-    from_str_helper("0.01", 0_0100);
+    from_str_helper("0.01", 0_010);
 
-    from_str_helper("0.001", 0_0010);
+    from_str_helper("0.001", 0_001);
 
-    from_str_helper("0.0001", 0_0001);
+    from_str_helper("0.0001", 0_000);
 
-    from_str_helper("0.00001", 0_0000);
+    from_str_helper("-0.1", -0_100);
 
-    from_str_helper("-0.1", -0_1000);
+    from_str_helper("0.0110", 0_011);
+    from_str_helper("-0.0110", -0_011);
 
-    from_str_helper("0.0110", 0_0110);
-    from_str_helper("-0.0110", -0_0110);
+    from_str_helper("9999999999999999999999999999", 9223372036854775_807);
 
-    from_str_helper("9999999999999999999999999999", 922337203685477_5807);
-
-    from_str_helper("-1", -1_0000);
+    from_str_helper("-1", -1_000);
 }
 
 #[test]
@@ -114,7 +112,6 @@ fn trig_test()
         trig_helper("tan", i, i);
     }
 }
-
 
 #[test]
 fn sin_test()
@@ -140,15 +137,4 @@ fn tan_test()
     println!("Test: {}", 45_f64.to_radians());
     println!("Num: {}", num);
     println!("Tan: {}", num.tan());
-}
-
-#[test]
-fn yolol_mul_test()
-{
-    let num: YololNumber = YololNumber::from_value(10);
-    let temp: YololNumber = YololNumber::from_value(4);
-
-    let val = num.yolol_mul(temp);
-
-    println!("Val: {}", val);
 }

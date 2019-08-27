@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use serde::{Serialize, Deserialize, Serializer, Deserializer, de::Visitor};
 
 use super::YololNumber;
-use crate::yolol_ops::YololOps;
+use crate::traits::YololOps;
 
 // Because expressing these values is... complicated... the serialization standard
 // is to have them represented purely as a string.

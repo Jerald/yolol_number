@@ -8,8 +8,7 @@ mod tests;
 mod utils;
 
 mod number;
-mod yolol_ops;
-mod consts;
+mod traits;
 
 /// A typedef for a YololNumber backed by the defacto standard: an i128.
 pub type YololNumber = number::YololNumber<i128>;
@@ -18,7 +17,7 @@ pub type YololNumber = number::YololNumber<i128>;
 /// you need to perform all the operations that you could want.
 pub mod prelude
 {
-    pub use crate::yolol_ops::YololOps;
+    pub use crate::traits::YololOps;
     pub type YololNumber = crate::number::YololNumber<i128>;
 
     pub use num_traits::{

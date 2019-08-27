@@ -7,11 +7,10 @@ use super::{
     YololNumber,
 };
 
-use crate::consts::{
+use crate::traits::{
+    YololOps,
     InnerBounds,
 };
-
-use crate::yolol_ops::YololOps;
 
 mod error;
 use error::FromStrError as Error;
@@ -63,9 +62,9 @@ impl<T: YololOps> FromStr for YololNumber<T>
         // This is the most annoying part of parsing a YololNumber from a string...
         let decimal_num = match captures.name("dec_num")
         {
-            // If there are 4 or more zeros at the start of the decimal digits
+            // If the number of zeros at the start of the decimal digits is >= the number of decimal places
             // then we're out of digits of precision and just want a 0 (aka, no decimal).
-            Some(_) if dec_zeros >= 4 => T::zero(),
+            Some(_) if dec_zeros >= Self::num_places() => T::zero(),
 
             // If there are no decimal numbers, then we also just want 0
             Some(num) if num.as_str().is_empty() => T::zero(),
@@ -74,16 +73,16 @@ impl<T: YololOps> FromStr for YololNumber<T>
             // decimal number we want.
             Some(num) => {
                 // How many digits are needed in the final number out of here.
-                // There are 4 total, so 4 minus the leading zeros is how many we need parsed.
-                let nums_we_need = 4 - dec_zeros;
+                // The total is the number of places, so that minus the leading zeros is how many we need parsed.
+                let nums_we_need = Self::num_places::<usize>() - dec_zeros;
 
                 // If the slice is too short, clamp so we don't panic.
                 //
                 // Basically, if we have more digits in the slice than we need, we only want
                 // to get those we need. Otherwise, we want to get as many as we have. Logically
-                // that value should then be greater than 0 and less than or equal to 4.
+                // that value should then be greater than 0 and less than or equal to the number of places.
                 let slice_len = usize::min(num.as_str().len(), nums_we_need);
-                if !(slice_len > 0 && slice_len <= 4) { return Err(Error::DecimalSliceLenLogicError) }
+                if !(slice_len > 0 && slice_len <= Self::num_places()) { return Err(Error::DecimalSliceLenLogicError) }
 
                 // We know how many digits we're getting, but we still have to make sure they
                 // express the correct value. For example, if we have the input "1.0110" we'd
@@ -95,7 +94,7 @@ impl<T: YololOps> FromStr for YololNumber<T>
                     // Logically it follows that it's difference between how many numbers we need
                     // and how many numbers we're getting.
                     let shift_pow = nums_we_need - slice_len;
-                    if shift_pow > 3 { return Err(Error::DecimalShiftPowLogicError) }
+                    if shift_pow >= Self::num_places() { return Err(Error::DecimalShiftPowLogicError) }
 
                     // This is little hack to do 10^n without dealing with stupid type stuff.
                     // Thanks iterators!

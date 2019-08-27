@@ -7,18 +7,21 @@ use num_traits::{
     },
 };
 
-use crate::consts::{
+use crate::traits::{
+    YololOps,
     NumBounds,
     ArgBounds,
 };
-
-use crate::yolol_ops::YololOps;
 
 mod ops;
 mod conversions;
 mod serde_impl;
 
-#[derive(Clone, Copy)]
+/// The single canonical definition of how many decimals places exist in a YololNumber.
+/// At least that's the goal, _most_ of the code uses this, but not all.
+const NUMBER_OF_PLACES: u8 = 3;
+
+#[derive(Debug, Clone, Copy)]
 pub struct YololNumber<T: YololOps>(T);
 
 impl<T: YololOps> YololNumber<T>
@@ -44,7 +47,7 @@ impl<T: YololOps> YololNumber<T>
     {
         let main = Self::make_inner(T::from(main)?);
 
-        // Clamps the decimal to between -9999 and 9999, to ensure we don't get weirdness
+        // Clamps the decimal to between -999 and 999, to ensure we don't get weirdness
         let decimal = {
             let val = T::from(decimal)?;
             val % Self::conversion_val()
@@ -88,13 +91,24 @@ impl<T: YololOps> YololNumber<T>
         inner / Self::conversion_val::<F>()
     }
 
+    /// Returns the actual number of decimal places that exist in a yolol number.
+    /// Call as `num_places::<T>()` to get the conversion value in a given type T.
+    pub fn num_places<F: 'static + Copy>() -> F
+    where
+        u8: AsPrimitive<F>
+    {
+        NUMBER_OF_PLACES.as_()
+    }
+
     /// Returns the value used to multiplicatively shift between the raw inner and actual value.
     /// Call as `conversion_val::<T>()` to get the conversion value in a given type T.
-    fn conversion_val<F: 'static + Copy>() -> F
+    pub fn conversion_val<F: 'static + Copy>() -> F
     where
         T: AsPrimitive<F>
     {
-        T::from(10000).expect("Using YololNumber with a backing type that can't express 10,000!").as_()
+
+        T::from(10i64.pow(Self::num_places()))
+            .expect("Using YololNumber with a backing type that can't express the conversion factor (10 ^ num_places)!").as_()
     }
 
     /// Converts a given value to the raw inner that expresses it.
@@ -104,7 +118,7 @@ impl<T: YololOps> YololNumber<T>
     }
 
     /// Treats the inputs as if it were a raw inner value.
-    /// This means it should be larger by a factor of 10_000 than the value you want.
+    /// This means it should be larger by a factor of the conversion value than the value you want.
     fn try_to_inner<F: NumBounds>(input: F) -> Option<Self>
     {
         // Converts it to T then maps the Some value to YololNumber<T>

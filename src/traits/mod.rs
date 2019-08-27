@@ -2,13 +2,11 @@ use std::fmt::{Display, Debug};
 use std::str::FromStr;
 use num_traits::*;
 
-use crate::yolol_ops::YololOps;
+mod yolol_ops;
+pub use yolol_ops::YololOps;
 
-/// Traits needed to be the inner backing type behind a YololNumber
+/// Traits needed to be compliant with YololOps
 pub trait InnerBounds = 'static + NumBounds + AsPrimitive<Self> + Signed + Bounded + CheckedAdd + CheckedSub + CheckedMul + CheckedDiv + CheckedRem;
-
-// These used to be bounds on an inner, but they should be conditionally checked in the implementation
-// Pow<Self> + Saturating + CheckedDiv + CheckedRem + CheckedMul;
 
 /// Traits needed to be an argument to a YololNumber<T>
 pub trait ArgBounds<T: YololOps> = NumBounds + AsPrimitive<T>;
