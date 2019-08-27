@@ -9,7 +9,6 @@ use num_traits::{
 
 use crate::traits::{
     YololOps,
-    NumBounds,
     ArgBounds,
 };
 
@@ -43,7 +42,7 @@ impl<T: YololOps> YololNumber<T>
 
     /// Creates a YololNumber from values split into the main digits and decimal digits.
     /// Checks the conversion, so the value is entirely lossless.
-    pub fn from_split(main: impl NumBounds, decimal: impl NumBounds) -> Option<Self>
+    pub fn from_split(main: impl ArgBounds<T>, decimal: impl ArgBounds<T>) -> Option<Self>
     {
         let main = Self::make_inner(T::from(main)?);
 
@@ -56,7 +55,7 @@ impl<T: YololOps> YololNumber<T>
         Some(YololNumber(main + decimal).bound())
     }
 
-    /// Returns raw inner value.
+    /// Returns the raw inner value.
     pub fn get_inner(self) -> T
     {
         self.0
@@ -74,7 +73,8 @@ impl<T: YololOps> YololNumber<T>
         YololNumber::zero()
     }
 
-    /// Clamps the value to the bounds of expressible YololNumbers, regardless of the bounds on the inner type T.
+    /// Clamps the value to the bounds of an expressible YololNumber,
+    /// regardless of the bounds on the inner type T.
     pub fn bound(self) -> Self
     {
         num_traits::clamp(self, Self::min_value(), Self::max_value())
@@ -106,7 +106,6 @@ impl<T: YololOps> YololNumber<T>
     where
         T: AsPrimitive<F>
     {
-
         T::from(10i64.pow(Self::num_places()))
             .expect("Using YololNumber with a backing type that can't express the conversion factor (10 ^ num_places)!").as_()
     }
@@ -119,10 +118,11 @@ impl<T: YololOps> YololNumber<T>
 
     /// Treats the inputs as if it were a raw inner value.
     /// This means it should be larger by a factor of the conversion value than the value you want.
-    fn try_to_inner<F: NumBounds>(input: F) -> Option<Self>
+    fn try_to_inner<F: NumCast>(input: F) -> Option<Self>
     {
         // Converts it to T then maps the Some value to YololNumber<T>
-        T::from(input).map(YololNumber)
+        T::from(input)
+            .map(YololNumber)
     }
 
     /// Directly outputs the raw inner value, does not scale it.

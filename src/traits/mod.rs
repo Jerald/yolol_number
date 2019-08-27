@@ -5,11 +5,16 @@ use num_traits::*;
 mod yolol_ops;
 pub use yolol_ops::YololOps;
 
-/// Traits needed to be compliant with YololOps
-pub trait InnerBounds = 'static + NumBounds + AsPrimitive<Self> + Signed + Bounded + CheckedAdd + CheckedSub + CheckedMul + CheckedDiv + CheckedRem;
+/// Trait bounds for the various operations required for a compliant
+/// YololOps implementation. Requires ArgBounds<Self>, implying the type
+/// can be used as an argument for a YololNumber backed by itself.
+pub trait InnerBounds = 'static + ArgBounds<Self> + Signed + Bounded + CheckedAdd + CheckedSub + CheckedMul + CheckedDiv + CheckedRem;
 
-/// Traits needed to be an argument to a YololNumber<T>
-pub trait ArgBounds<T: YololOps> = NumBounds + AsPrimitive<T>;
+/// Trait bounds extending from NumBounds to allow the type to be
+/// an argument to a YololNumber<T>.
+pub trait ArgBounds<T: 'static + NumBounds> = NumBounds + AsPrimitive<T>;
 
-/// Traits needed to interact with a YololNumber
+/// Standard traits considered the base of any types interacting
+/// with a YololNumber. Generally isn't used itself, as it's transitively
+/// a bound for `ArgBounds` and `NumBounds`.
 pub trait NumBounds = Display + Debug + FromStr + Clone + Copy + Eq + PartialEq + Ord + PartialOrd + Num + NumOps + NumCast;

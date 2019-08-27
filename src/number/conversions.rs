@@ -80,6 +80,9 @@ impl<T: YololOps> num_traits::AsPrimitive<Self> for YololNumber<T>
 }
 
 impl<T: YololOps> num_traits::FromPrimitive for YololNumber<T>
+where
+    i64: num_traits::AsPrimitive<T>,
+    u64: num_traits::AsPrimitive<T>
 {
     /// Treats the inputs as if it were a raw inner value.
     /// This means it should be larger by a factor of the conversion value than the value you want.
