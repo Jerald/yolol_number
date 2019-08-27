@@ -40,6 +40,11 @@ where f64: AsPrimitive<T>
     #[inline]
     pub fn from_float(input: f64) -> Self
     {
+        if input.is_nan()
+        {
+            return YololNumber::min_value();
+        }
+
         let inner_float = input * Self::conversion_val::<f64>();
         YololNumber(inner_float.round().as_()).bound()
     }
@@ -49,25 +54,7 @@ where f64: AsPrimitive<T>
         let pow = self.float_value()
             .powf(other.float_value());
 
-        // If our float pow overflowed, we need to map the value back to the space of T
-        let pow = if pow.abs() > T::max_value().as_()
-        {
-            if pow.is_sign_positive()
-            {
-                T::max_value()
-            }
-            else // sign is negative
-            {
-                T::min_value()
-            }
-        }
-        else
-        {
-            // If it didn't overflow we can just directly cast it back
-            T::from(pow).expect("Unable to convert output of pow into inner type... Bad things happened")
-        };
-
-        YololNumber::from_value(pow)
+        YololNumber::from_float(pow)
     }
 
     pub fn sqrt(self) -> Self
