@@ -51,7 +51,7 @@ fn trig_helper(trig: &'static str, input: f64, expected: f64)
     };
 
     println!("Trig expected in f64: '{}({}) = {}'", trig, input, output);
-    let output: i128 = (output*1000_f64).round().as_();
+    let output: i128 = (output * YololNumber::conversion_val::<f64>()).round().as_();
 
     num_helper(num, output);
 }
