@@ -1,6 +1,3 @@
-// So we don't have _horrible_ trait bounds
-#![feature(trait_alias)]
-
 #[cfg(test)]
 mod tests;
 
