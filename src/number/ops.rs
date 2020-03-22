@@ -329,5 +329,3 @@ impl<T: YololOps> Not for YololNumber<T>
         }
     }
 }
-
-
