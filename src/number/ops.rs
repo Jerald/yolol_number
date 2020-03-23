@@ -195,8 +195,7 @@ impl<T: YololOps> num_traits::CheckedAdd for YololNumber<T>
 {
     fn checked_add(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_add(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_add(&other.0).map(YololNumber)
     }
 }
 
@@ -204,8 +203,7 @@ impl<T: YololOps> num_traits::CheckedSub for YololNumber<T>
 {
     fn checked_sub(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_sub(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_sub(&other.0).map(YololNumber)
     }
 }
 
@@ -215,7 +213,7 @@ impl<T: YololOps> num_traits::CheckedMul for YololNumber<T>
     {
         self.0.checked_mul(&other.0)?
             .checked_div(&Self::conversion_val())
-            .map(|n| YololNumber(n))
+            .map(YololNumber)
     }
 }
 
@@ -225,7 +223,7 @@ impl<T: YololOps> num_traits::CheckedDiv for YololNumber<T>
     {
         self.0.checked_mul(&Self::conversion_val())?
             .checked_div(&other.0)
-            .map(|n| YololNumber(n))
+            .map(YololNumber)
     }
 }
 
@@ -233,8 +231,7 @@ impl<T: YololOps> num_traits::CheckedRem for YololNumber<T>
 {
     fn checked_rem(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_rem(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_rem(&other.0).map(YololNumber)
     }
 }
 
