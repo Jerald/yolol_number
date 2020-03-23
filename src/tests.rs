@@ -17,7 +17,7 @@ fn num_helper(num: YololNumber, expected: i128)
     println!("Num: {:?}", num);
     println!("Expected value:  {}", expected);
 
-    let expected = num_traits::clamp(expected, std::i64::MIN.into(), std::i64::MAX.into());
+    let expected = num_traits::clamp(expected, i64::min_value().into(), i64::max_value().into());
 
     assert_eq!(expected, num.get_inner(), "Expected inner: {:?}. Actual inner: {:?}", expected, num.get_inner());
     println!();
