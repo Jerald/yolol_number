@@ -22,6 +22,7 @@ mod serde_impl;
 /// At least that's the goal, _most_ of the code uses this, but not all.
 const NUMBER_OF_PLACES: u8 = 3;
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Copy)]
 pub struct YololNumber<T: YololOps>(T);
 
