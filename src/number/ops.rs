@@ -35,7 +35,7 @@ where f64: AsPrimitive<T>
         self_float / Self::conversion_val::<f64>()
     }
 
-    /// Converts a float value into a YololNumber with correct rounding behaviour
+    /// Converts a float value into a `YololNumber` with correct rounding behaviour
     #[inline]
     pub fn from_float(input: f64) -> Self
     {
