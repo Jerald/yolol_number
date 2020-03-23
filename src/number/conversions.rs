@@ -16,6 +16,9 @@ impl<T: YololOps> From<bool> for YololNumber<T>
 
 impl<T: YololOps> std::fmt::Display for YololNumber<T>
 {
+    // Clippy screams about `if_not_else` as it reduces readability, but the
+    // alternative is actually much more unreadable in this context.
+    #[allow(clippy::if_not_else)]
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
         let sign_str = if self.0.signum() == -T::one() { "-" } else { "" };
@@ -33,21 +36,14 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
 
         write!(f, "{}", sign_str)?;
         write!(f, "{}", main_digits)?;
-
-        if ones != T::zero()
-        {
+        
+        if ones != T::zero() {
             write!(f, ".{}{}{}", hundreds, tens, ones)
-        }
-        else if tens != T::zero()
-        {
+        } else if tens != T::zero() {
             write!(f, ".{}{}", hundreds, tens)
-        }
-        else if hundreds != T::zero()
-        {
+        } else if hundreds != T::zero() {
             write!(f, ".{}", hundreds)
-        }
-        else
-        {
+        } else {
             Ok(())
         }
     }

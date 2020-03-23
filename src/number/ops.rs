@@ -136,43 +136,29 @@ impl<T: YololOps> num_traits::Signed for YololNumber<T>
 
     fn abs_sub(&self, other: &Self) -> Self
     {
-        if self <= other
-        {
+        if self <= other {
             Self::zero()
-        }
-        else
-        {
+        } else {
             (self - other).abs()
         }
     }
 
     fn signum(&self) -> Self
     {
-        if self.is_positive()
-        {
+        if self.is_positive() {
             Self::one()
-        }
-        else if self.is_negative()
-        {
+        } else if self.is_negative() {
             -Self::one()
-        }
-        else // self == 0
-        {
+        } else {
             Self::zero()
         }
     }
 
-    // Clippy seems to think that the ref is a mistake,
-    // but it won't compile without it :/
-    #[allow(clippy::op_ref)]
     fn is_positive(&self) -> bool
     {
         self > &Self::zero()
     }
 
-    // Clippy seems to think that the ref is a mistake,
-    // but it won't compile without it :/
-    #[allow(clippy::op_ref)]
     fn is_negative(&self) -> bool
     {
         self < &Self::zero()
@@ -319,12 +305,9 @@ impl<T: YololOps> Not for YololNumber<T>
     type Output = Self;
     fn not(self) -> Self
     {
-        if self == Self::falsy()
-        {
+        if self == Self::falsy() {
             Self::truthy()
-        }
-        else
-        {
+        } else {
             Self::falsy()
         }
     }
