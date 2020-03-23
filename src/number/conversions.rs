@@ -8,14 +8,9 @@ impl<T: YololOps> From<bool> for YololNumber<T>
 {
     // Clippy doesn't like using a match for this,
     // but it's the most expressive for the situation.
-    #[allow(clippy::match_bool)]
     fn from(input: bool) -> Self
     {
-        match input
-        {
-            true => Self::truthy(),
-            false => Self::falsy()
-        }
+        if input { Self::truthy() } else { Self::falsy() }
     }
 }
 
