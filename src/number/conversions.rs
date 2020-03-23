@@ -18,16 +18,7 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
 {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
-        let sign_str = match self.0.signum()
-        {
-            s if s == T::one()  => "",
-            s if s == T::zero() => "",
-            s if s == -T::one() => "-",
-
-            // Considering the above are the only values `s` could be,
-            // assuming positive if this happens is pretty safe.
-            _ => ""
-        };
+        let sign_str = if self.0.signum() == -T::one() { "-" } else { "" };
 
         // This is hacky due to overflow/underflow behaviour, fix eventually
         let positive_inner = self.0.abs();
