@@ -109,7 +109,7 @@ impl<T: YololOps> YololNumber<T>
     where
         T: AsPrimitive<F>
     {
-        T::from(10i64.pow(Self::num_places()))
+        T::from(10_i64.pow(Self::num_places()))
             .expect("Using YololNumber with a backing type that can't express the conversion factor (10 ^ num_places)!").as_()
     }
 
