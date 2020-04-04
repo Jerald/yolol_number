@@ -1,5 +1,6 @@
 use std::fmt;
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug)]
 pub enum FromStrError
 {

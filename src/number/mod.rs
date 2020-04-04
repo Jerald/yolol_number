@@ -18,16 +18,17 @@ mod ops;
 mod conversions;
 mod serde_impl;
 
-/// The single canonical definition of how many decimals places exist in a YololNumber.
+/// The single canonical definition of how many decimals places exist in a `YololNumber`.
 /// At least that's the goal, _most_ of the code uses this, but not all.
 const NUMBER_OF_PLACES: u8 = 3;
 
+#[allow(clippy::module_name_repetitions)]
 #[derive(Debug, Clone, Copy)]
 pub struct YololNumber<T: YololOps>(T);
 
 impl<T: YololOps> YololNumber<T>
 {
-    /// Creates a YololNumber with the same value as the input. This will shift the input as necessary.
+    /// Creates a `YololNumber` with the same value as the input. This will shift the input as necessary.
     /// Does an unchecked `as` cast, so the value may be lossy if misused.
     pub fn from_value(input: impl ArgBounds<T>) -> Self
     {
@@ -35,14 +36,14 @@ impl<T: YololOps> YololNumber<T>
         YololNumber(inner).bound()
     }
 
-    /// Creates a YololNumber with the input directly used as the raw inner. 
+    /// Creates a `YololNumber` with the input directly used as the raw inner. 
     /// Does an unchecked `as` cast, so the value may be lossy if misused.
     pub fn from_inner(input: impl ArgBounds<T>) -> Self
     {
         YololNumber(input.as_()).bound()
     }
 
-    /// Creates a YololNumber from values split into the main digits and decimal digits.
+    /// Creates a `YololNumber` from values split into the main digits and decimal digits.
     /// Checks the conversion, so the value is entirely lossless.
     pub fn from_split(main: impl ArgBounds<T>, decimal: impl ArgBounds<T>) -> Option<Self>
     {
@@ -75,7 +76,7 @@ impl<T: YololOps> YololNumber<T>
         YololNumber::zero()
     }
 
-    /// Clamps the value to the bounds of an expressible YololNumber,
+    /// Clamps the value to the bounds of an expressible `YololNumber`,
     /// regardless of the bounds on the inner type T.
     pub fn bound(self) -> Self
     {
@@ -108,7 +109,7 @@ impl<T: YololOps> YololNumber<T>
     where
         T: AsPrimitive<F>
     {
-        T::from(10i64.pow(Self::num_places()))
+        T::from(10_i64.pow(Self::num_places()))
             .expect("Using YololNumber with a backing type that can't express the conversion factor (10 ^ num_places)!").as_()
     }
 
@@ -142,7 +143,7 @@ impl<T: YololOps> num_traits::Zero for YololNumber<T>
         YololNumber::from_value(T::zero())
     }
 
-    /// Returns whether or not the YololNumber is zero.
+    /// Returns whether or not the `YololNumber` is zero.
     fn is_zero(&self) -> bool
     {
         self == &Self::zero()
@@ -176,7 +177,7 @@ impl<T: YololOps> num_traits::Num for YololNumber<T>
 
 impl<T: YololOps> num_traits::Bounded for YololNumber<T>
 {
-    /// Returns the minimum value expressible in a YololNumber
+    /// Returns the minimum value expressible in a `YololNumber`
     fn min_value() -> Self
     {
         let min = T::from(<i64 as num_traits::Bounded>::min_value())
@@ -185,7 +186,7 @@ impl<T: YololOps> num_traits::Bounded for YololNumber<T>
         YololNumber(min)
     }
 
-    /// Returns the maximum value expressible in a YololNumber
+    /// Returns the maximum value expressible in a `YololNumber`
     fn max_value() -> Self
     {
         let max = T::from(<i64 as num_traits::Bounded>::max_value())

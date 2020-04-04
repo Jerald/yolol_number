@@ -8,31 +8,20 @@ impl<T: YololOps> From<bool> for YololNumber<T>
 {
     // Clippy doesn't like using a match for this,
     // but it's the most expressive for the situation.
-    #[allow(clippy::match_bool)]
     fn from(input: bool) -> Self
     {
-        match input
-        {
-            true => Self::truthy(),
-            false => Self::falsy()
-        }
+        if input { Self::truthy() } else { Self::falsy() }
     }
 }
 
 impl<T: YololOps> std::fmt::Display for YololNumber<T>
 {
+    // Clippy screams about `if_not_else` as it reduces readability, but the
+    // alternative is actually much more unreadable in this context.
+    #[allow(clippy::if_not_else)]
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
-        let sign_str = match self.0.signum()
-        {
-            s if s == T::one()  => "",
-            s if s == T::zero() => "",
-            s if s == -T::one() => "-",
-
-            // Considering the above are the only values `s` could be,
-            // assuming positive if this happens is pretty safe.
-            _ => ""
-        };
+        let sign_str = if self.0.signum() == -T::one() { "-" } else { "" };
 
         // This is hacky due to overflow/underflow behaviour, fix eventually
         let positive_inner = self.0.abs();
@@ -47,21 +36,14 @@ impl<T: YololOps> std::fmt::Display for YololNumber<T>
 
         write!(f, "{}", sign_str)?;
         write!(f, "{}", main_digits)?;
-
-        if ones != T::zero()
-        {
+        
+        if ones != T::zero() {
             write!(f, ".{}{}{}", hundreds, tens, ones)
-        }
-        else if tens != T::zero()
-        {
+        } else if tens != T::zero() {
             write!(f, ".{}{}", hundreds, tens)
-        }
-        else if hundreds != T::zero()
-        {
+        } else if hundreds != T::zero() {
             write!(f, ".{}", hundreds)
-        }
-        else
-        {
+        } else {
             Ok(())
         }
     }

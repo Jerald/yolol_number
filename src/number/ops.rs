@@ -35,7 +35,7 @@ where f64: AsPrimitive<T>
         self_float / Self::conversion_val::<f64>()
     }
 
-    /// Converts a float value into a YololNumber with correct rounding behaviour
+    /// Converts a float value into a `YololNumber` with correct rounding behaviour
     #[inline]
     pub fn from_float(input: f64) -> Self
     {
@@ -136,43 +136,29 @@ impl<T: YololOps> num_traits::Signed for YololNumber<T>
 
     fn abs_sub(&self, other: &Self) -> Self
     {
-        if self <= other
-        {
+        if self <= other {
             Self::zero()
-        }
-        else
-        {
+        } else {
             (self - other).abs()
         }
     }
 
     fn signum(&self) -> Self
     {
-        if self.is_positive()
-        {
+        if self.is_positive() {
             Self::one()
-        }
-        else if self.is_negative()
-        {
+        } else if self.is_negative() {
             -Self::one()
-        }
-        else // self == 0
-        {
+        } else {
             Self::zero()
         }
     }
 
-    // Clippy seems to think that the ref is a mistake,
-    // but it won't compile without it :/
-    #[allow(clippy::op_ref)]
     fn is_positive(&self) -> bool
     {
         self > &Self::zero()
     }
 
-    // Clippy seems to think that the ref is a mistake,
-    // but it won't compile without it :/
-    #[allow(clippy::op_ref)]
     fn is_negative(&self) -> bool
     {
         self < &Self::zero()
@@ -209,8 +195,7 @@ impl<T: YololOps> num_traits::CheckedAdd for YololNumber<T>
 {
     fn checked_add(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_add(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_add(&other.0).map(YololNumber)
     }
 }
 
@@ -218,8 +203,7 @@ impl<T: YololOps> num_traits::CheckedSub for YololNumber<T>
 {
     fn checked_sub(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_sub(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_sub(&other.0).map(YololNumber)
     }
 }
 
@@ -229,7 +213,7 @@ impl<T: YololOps> num_traits::CheckedMul for YololNumber<T>
     {
         self.0.checked_mul(&other.0)?
             .checked_div(&Self::conversion_val())
-            .map(|n| YololNumber(n))
+            .map(YololNumber)
     }
 }
 
@@ -239,7 +223,7 @@ impl<T: YololOps> num_traits::CheckedDiv for YololNumber<T>
     {
         self.0.checked_mul(&Self::conversion_val())?
             .checked_div(&other.0)
-            .map(|n| YololNumber(n))
+            .map(YololNumber)
     }
 }
 
@@ -247,8 +231,7 @@ impl<T: YololOps> num_traits::CheckedRem for YololNumber<T>
 {
     fn checked_rem(&self, other: &Self) -> Option<Self>
     {
-        self.0.checked_rem(&other.0)
-            .map(|n| YololNumber(n))
+        self.0.checked_rem(&other.0).map(YololNumber)
     }
 }
 
@@ -319,12 +302,9 @@ impl<T: YololOps> Not for YololNumber<T>
     type Output = Self;
     fn not(self) -> Self
     {
-        if self == Self::falsy()
-        {
+        if self == Self::falsy() {
             Self::truthy()
-        }
-        else
-        {
+        } else {
             Self::falsy()
         }
     }

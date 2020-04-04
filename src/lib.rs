@@ -7,10 +7,10 @@ mod utils;
 mod number;
 mod traits;
 
-/// A typedef for a YololNumber backed by the defacto standard: an i128.
+/// A typedef for a `YololNumber` backed by the defacto standard: an i128.
 pub type YololNumber = number::YololNumber<i128>;
 
-/// Import this to get the standard YololNumber typedef and all the traits
+/// Import this to get the standard `YololNumber` typedef and all the traits
 /// you need to perform all the operations that you could want.
 pub mod prelude
 {
