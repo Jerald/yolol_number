@@ -16,5 +16,7 @@ num-traits = "^0.2"
 regex = "^1"
 lazy_static = "^1"
 
+thiserror = "^1.0.19"
+
 [dev-dependencies]
 serde_json = "^1"
