@@ -2,7 +2,7 @@ use super::YololNumber;
 
 use crate::traits::YololOps;
 
-mod from_str;
+pub mod from_str;
 
 impl<T: YololOps> From<bool> for YololNumber<T>
 {

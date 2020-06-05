@@ -15,7 +15,7 @@ use crate::traits::{
 };
 
 mod ops;
-mod conversions;
+pub mod conversions;
 mod serde_impl;
 
 /// The single canonical definition of how many decimals places exist in a `YololNumber`.

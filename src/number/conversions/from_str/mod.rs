@@ -7,7 +7,7 @@ use super::YololNumber;
 
 use crate::traits::YololOps;
 
-mod error;
+pub mod error;
 use error::FromStrError as Error;
 
 static YOLOL_NUM_MATCHER_REGEX: &str = r"^(?P<sign>\+|-)?(?P<main>[0-9]+)(?:\.(?P<dec_zero>0*)(?P<dec_num>[0-9]*))?$";
