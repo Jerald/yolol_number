@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[allow(clippy::module_name_repetitions)]
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum FromStrError
 {
     /// The input that failed regex verification.
